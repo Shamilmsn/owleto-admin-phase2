@@ -845,6 +845,7 @@ class ProductController extends Controller
         $product->save();
 
         return response()->json(true, 200);
+
     }
 }
 
