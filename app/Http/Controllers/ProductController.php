@@ -513,7 +513,7 @@ class ProductController extends Controller
         try {
             $product->days()->detach();
             $product = $this->productRepository->update($input, $id);
-
+            //checking
             if($product->variantProducts()->exists())
             {
                 $product->product_type = Product::VARIANT_BASE_PRODUCT;
