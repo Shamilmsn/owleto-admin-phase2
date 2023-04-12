@@ -222,16 +222,26 @@ class ProductController extends Controller
 
                         $variantProduct = new Product();
 
-                        if ($request->is_variant_display_product == 1) {
+//                        if ($request->is_variant_display_product == 1) {
+////                            if ( $key == 0 ) {
+//                            if ($key == 0) {
+//                                $variantProduct->is_variant_display_product = 1;
+//                            }
+////                            }
+//                        } else {
+//                            $variantProduct->is_variant_display_product = 1;
+//                        }
+
+                        if ($request->is_variant_display_product == 0) {
 //                            if ( $key == 0 ) {
                             if ($key == 0) {
                                 $variantProduct->is_variant_display_product = 1;
                             }
 //                            }
-                        } else {
-                            $variantProduct->is_variant_display_product = 1;
                         }
-
+                        else {
+                            $variantProduct->is_variant_display_product = 0;
+                        }
 
                         $variantProduct->base_name = $request->input('base_name');
                         $variantProduct->variant_name = $variantNames[$index];
