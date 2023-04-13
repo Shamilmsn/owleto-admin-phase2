@@ -143,14 +143,14 @@ class ProductAPIController extends Controller
 
             info($request);
 
-            $products = $this->productRepository->with('market')
-                ->where('is_enabled', true)
-                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
-                ->where('deliverable', 1)
-                ->where('is_approved', true)
-                ->Where(function ($query) {
-                    $query->where('is_variant_display_product', true);
-                });
+//            $products = $this->productRepository->with('market')
+//                ->where('is_enabled', true)
+//                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
+//                ->where('deliverable', 1)
+//                ->where('is_approved', true)
+//                ->Where(function ($query) {
+//                    $query->where('is_variant_display_product', true);
+//                });
 
             info($products->get());
 
@@ -163,7 +163,22 @@ class ProductAPIController extends Controller
 
             if ($request->sector_id) {
                 info("this is the show");
-                $products = $products->where('sector_id', $request->sector_id);
+
+                $products = $this->productRepository
+                    ->where('is_enabled', true)
+                    ->where('deliverable', 1)
+                    ->where('sector_id', $request->sector_id)
+                    ->where('is_approved', true)
+//                    ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
+                    ->Where(function ($query) {
+                        $query->where('is_variant_display_product', true)
+                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
+                    })
+                    ->orderByDesc('id')
+                    ->get();
+
+//
+//                $products = $products->where('sector_id', $request->sector_id);
             }
 
             if ($request->market_id) {
@@ -185,7 +200,7 @@ class ProductAPIController extends Controller
                 $products = $products->where('featured', true);
             }
 
-            $products = $products->get();
+//            $products = $products->get();
 
         } catch (RepositoryException $e) {
             return $this->sendError($e->getMessage());
