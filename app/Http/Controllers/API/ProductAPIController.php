@@ -141,6 +141,7 @@ class ProductAPIController extends Controller
 
             $products = $this->productRepository->pushCriteria(new ProductsOfCategoriesCriteria($request));
 
+            info($request);
 
             $products = $this->productRepository->with('market')
                 ->where('is_enabled', true)
@@ -150,6 +151,8 @@ class ProductAPIController extends Controller
                 ->Where(function ($query) {
                     $query->where('is_variant_display_product', true);
                 });
+
+            info($products->get());
 
 
             if ($request->search_name) {
