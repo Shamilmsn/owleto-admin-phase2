@@ -142,12 +142,11 @@ class ProductAPIController extends Controller
 
             $products = $this->productRepository->with('market')
                 ->where('is_enabled', true)
-//                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
+                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
                 ->where('deliverable', 1)
                 ->where('is_approved', true)
                 ->Where(function ($query) {
-                    $query->where('is_variant_display_product', true)
-                        ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
+                    $query->where('is_variant_display_product', true);
                 });
 
 
