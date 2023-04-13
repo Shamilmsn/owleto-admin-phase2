@@ -164,6 +164,7 @@ class ProductAPIController extends Controller
                 })
                 ->orderByDesc('id')
                 ->get();
+
 //            info($products->get());
 
 
