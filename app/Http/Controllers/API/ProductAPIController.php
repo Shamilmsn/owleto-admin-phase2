@@ -163,6 +163,7 @@ class ProductAPIController extends Controller
             }
 
             if ($request->sector_id) {
+                info("this is the show");
                 $products = $products->where('sector_id', $request->sector_id);
                 $products = $products
                     ->where('is_enabled', true)
