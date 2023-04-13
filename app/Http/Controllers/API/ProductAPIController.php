@@ -165,7 +165,7 @@ class ProductAPIController extends Controller
                 ->orderByDesc('id')
                 ->get();
 
-            info($products->get());
+//            info($products->get());
 
 
 //            if ($request->search_name) {
