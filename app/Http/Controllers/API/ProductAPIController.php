@@ -142,12 +142,12 @@ class ProductAPIController extends Controller
 
             $products = $this->productRepository->with('market')
                 ->where('is_enabled', true)
-                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
+//                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
                 ->where('deliverable', 1)
                 ->where('is_approved', true)
                 ->Where(function ($query) {
                     $query->where('is_variant_display_product', true)
-                        ->orWhere('product_type', Product::STANDARD_PRODUCT);
+                        ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
                 });
 
 
@@ -158,7 +158,7 @@ class ProductAPIController extends Controller
                     ->orWhere('variant_name', 'like', '%' . $request->search_name . '%')
                     ->Where(function ($query) {
                         $query->where('is_variant_display_product', true)
-                            ->orWhere('product_type', Product::STANDARD_PRODUCT);
+                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
                     });
             }
 
@@ -169,7 +169,7 @@ class ProductAPIController extends Controller
                     ->where('sector_id', $request->sector_id)
                     ->Where(function ($query) {
                         $query->where('is_variant_display_product', true)
-                            ->orWhere('product_type', Product::STANDARD_PRODUCT);
+                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
                     });
             }
 
@@ -180,7 +180,7 @@ class ProductAPIController extends Controller
                     ->where('market_id', $request->market_id)
                     ->Where(function ($query) {
                         $query->where('is_variant_display_product', true)
-                            ->orWhere('product_type', Product::STANDARD_PRODUCT);
+                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
                     });
             }
 
