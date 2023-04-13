@@ -517,7 +517,6 @@ class ProductController extends Controller
                 $product->product_type = Product::VARIANT_BASE_PRODUCT;
                 $product->save();
             }
-
             if (isset($input['image']) && $input['image'] && is_array($input['image'])) {
                 foreach ($input['image'] as $fileUuid) {
                     $cacheUpload = $this->uploadRepository->getByUuid($fileUuid);
