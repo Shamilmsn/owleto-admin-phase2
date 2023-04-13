@@ -152,8 +152,7 @@ class ProductAPIController extends Controller
 //                    $query->where('is_variant_display_product', true);
 //                });
 
-            $products = $this->productRepository
-                ->where('is_enabled', true)
+            $products = Product::where('is_enabled', true)
                 ->where('deliverable', 1)
 //                ->where('sector_id', $request->sector_id)
                 ->where('is_approved', true)
@@ -164,7 +163,6 @@ class ProductAPIController extends Controller
                 })
                 ->orderByDesc('id')
                 ->get();
-
 //            info($products->get());
 
 
