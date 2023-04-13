@@ -131,6 +131,8 @@ class ProductAPIController extends Controller
      */
     public function categories(Request $request)
     {
+        $this->productRepository->skipCache();
+
         try {
             $this->productRepository->pushCriteria(new RequestCriteria($request));
             $this->productRepository->pushCriteria(new LimitOffsetCriteria($request));
