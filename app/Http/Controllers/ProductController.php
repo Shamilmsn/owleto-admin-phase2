@@ -475,6 +475,7 @@ class ProductController extends Controller
      */
     public function update($id, Request $request)
     {
+
         $sectors = [
             Field::RESTAURANT,
             Field::HOME_COOKED_FOOD,
@@ -508,6 +509,7 @@ class ProductController extends Controller
         }
 
         $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->productRepository->model());
+
         try {
             $product->days()->detach();
             $product = $this->productRepository->update($input, $id);
