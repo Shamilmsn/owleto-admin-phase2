@@ -154,18 +154,18 @@ class ProductAPIController extends Controller
 
             $products = Product::
 //            where('is_enabled', true)
-                where('deliverable', 1)
+//                where('deliverable', 1)
 //                ->where('sector_id', $request->sector_id)
-                ->where('is_approved', true)
+//                ->where('is_approved', true)
 //                    ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
-                ->Where(function ($query) {
+                Where(function ($query) {
                     $query->where('is_variant_display_product', true)
                         ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
                 })
                 ->orderByDesc('id')
                 ->get();
-//            info($products->get());
 
+//            info($products->get());
 
 //            if ($request->search_name) {
 //                $products = $products->where('base_name', 'like', '%' . $request->search_name . '%')
