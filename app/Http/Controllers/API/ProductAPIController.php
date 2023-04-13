@@ -153,50 +153,23 @@ class ProductAPIController extends Controller
 
             if ($request->search_name) {
                 $products = $products->where('base_name', 'like', '%' . $request->search_name . '%')
-                    ->where('is_enabled', true)
                     ->where('base_name', 'like', '%' . $request->search_name . '%')
-                    ->orWhere('variant_name', 'like', '%' . $request->search_name . '%')
-                    ->Where(function ($query) {
-                        $query->where('is_variant_display_product', true)
-                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
-                    });
+                    ->orWhere('variant_name', 'like', '%' . $request->search_name . '%');
             }
 
             if ($request->sector_id) {
                 info("this is the show");
-
-                $products = $products
-                    ->where('sector_id', $request->sector_id)
-                    ->where('is_enabled', true)
-                    ->where('sector_id', $request->sector_id)
-                    ->where('deliverable', 1)
-                    ->where('is_approved', true)
-//                    ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
-                    ->Where(function ($query) {
-                        $query->where('is_variant_display_product', true)
-                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
-                    })
-                    ->orderByDesc('id');
-
-
+                $products = $products->where('sector_id', $request->sector_id);
             }
 
             if ($request->market_id) {
                 $products = $products->where('market_id', $request->market_id);
-                $products = $products
-                    ->where('is_enabled', true)
-                    ->where('market_id', $request->market_id)
-                    ->Where(function ($query) {
-                        $query->where('is_variant_display_product', true)
-                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
-                    });
             }
 
             if ($request->Is_flash_sale_product) {
 
                 $now = Carbon::now()->format('Y-m-d H:i:s');
                 $products = $products
-                    ->where('is_enabled', true)
                     ->where('is_flash_sale_approved', true)
                     ->where('is_flash_sale', true)
                     ->where('flash_sale_start_time', '<=', $now)
@@ -206,9 +179,6 @@ class ProductAPIController extends Controller
 
             if ($request->featured == 1) {
                 $products = $products->where('featured', true);
-                $products = $products
-                    ->where('is_enabled', true)
-                    ->where('featured', true);
             }
 
             $products = $products->get();
