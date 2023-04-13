@@ -167,7 +167,6 @@ class ProductAPIController extends Controller
 
 //            info($products->get());
 
-
 //            if ($request->search_name) {
 //                $products = $products->where('base_name', 'like', '%' . $request->search_name . '%')
 //                    ->where('base_name', 'like', '%' . $request->search_name . '%')
