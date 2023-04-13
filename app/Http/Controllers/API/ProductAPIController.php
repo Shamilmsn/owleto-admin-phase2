@@ -143,76 +143,53 @@ class ProductAPIController extends Controller
 
             info($request);
 
-//            $products = $this->productRepository->with('market')
-//                ->where('is_enabled', true)
-//                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
-//                ->where('deliverable', 1)
-//                ->where('is_approved', true)
-//                ->Where(function ($query) {
-//                    $query->where('is_variant_display_product', true);
-//                });
+            $products = $this->productRepository->with('market')
+                ->where('is_enabled', true)
+                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
+                ->where('deliverable', 1)
+                ->where('is_approved', true)
+                ->Where(function ($query) {
+                    $query->where('is_variant_display_product', true);
+                });
 
-            $products = Product::
-//            where('is_enabled', true)
-//                where('deliverable', 1)
-//                ->where('sector_id', $request->sector_id)
-//                ->where('is_approved', true)
-//                    ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
-                Where(function ($query) {
-                    $query->where('is_variant_display_product', true)
-                        ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
-                })
-                ->orderByDesc('id')
-                ->get();
 
 //            info($products->get());
 
-//            if ($request->search_name) {
-//                $products = $products->where('base_name', 'like', '%' . $request->search_name . '%')
-//                    ->where('base_name', 'like', '%' . $request->search_name . '%')
-//                    ->orWhere('variant_name', 'like', '%' . $request->search_name . '%');
-//            }
+            if ($request->search_name) {
+                $products = $products->where('base_name', 'like', '%' . $request->search_name . '%')
+                    ->where('base_name', 'like', '%' . $request->search_name . '%')
+                    ->orWhere('variant_name', 'like', '%' . $request->search_name . '%');
+            }
 //
-//            if ($request->sector_id) {
-//                info("this is the show");
-//
-//                $products = $this->productRepository
-//                    ->where('is_enabled', true)
-//                    ->where('deliverable', 1)
-//                    ->where('sector_id', $request->sector_id)
-//                    ->where('is_approved', true)
-////                    ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
-//                    ->Where(function ($query) {
-//                        $query->where('is_variant_display_product', true)
-//                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
-//                    })
-//                    ->orderByDesc('id')
-//                    ->get();
-//
-////
-////                $products = $products->where('sector_id', $request->sector_id);
-//            }
+            if ($request->sector_id) {
+                info("this is the show");
 
-//            if ($request->market_id) {
-//                $products = $products->where('market_id', $request->market_id);
-//            }
+                $products = $this->productRepository->where('sector_id', $request->sector_id);
 
-//            if ($request->Is_flash_sale_product) {
 //
-//                $now = Carbon::now()->format('Y-m-d H:i:s');
-//                $products = $products
-//                    ->where('is_flash_sale_approved', true)
-//                    ->where('is_flash_sale', true)
-//                    ->where('flash_sale_start_time', '<=', $now)
-//                    ->where('flash_sale_end_time', '>=', $now);
-//
-//            }
+//                $products = $products->where('sector_id', $request->sector_id);
+            }
 
-//            if ($request->featured == 1) {
-//                $products = $products->where('featured', true);
-//            }
+            if ($request->market_id) {
+                $products = $products->where('market_id', $request->market_id);
+            }
 
-//            $products = $products->get();
+            if ($request->Is_flash_sale_product) {
+
+                $now = Carbon::now()->format('Y-m-d H:i:s');
+                $products = $products
+                    ->where('is_flash_sale_approved', true)
+                    ->where('is_flash_sale', true)
+                    ->where('flash_sale_start_time', '<=', $now)
+                    ->where('flash_sale_end_time', '>=', $now);
+
+            }
+
+            if ($request->featured == 1) {
+                $products = $products->where('featured', true);
+            }
+
+            $products = $products->get();
 
         } catch (RepositoryException $e) {
             return $this->sendError($e->getMessage());
