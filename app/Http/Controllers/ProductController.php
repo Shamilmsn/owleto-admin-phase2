@@ -222,26 +222,16 @@ class ProductController extends Controller
 
                         $variantProduct = new Product();
 
-//                        if ($request->is_variant_display_product == 1) {
-////                            if ( $key == 0 ) {
-//                            if ($key == 0) {
-//                                $variantProduct->is_variant_display_product = 1;
-//                            }
-////                            }
-//                        } else {
-//                            $variantProduct->is_variant_display_product = 1;
-//                        }
-
-                        if ($request->is_variant_display_product == 0) {
+                        if ($request->is_variant_display_product == 1) {
 //                            if ( $key == 0 ) {
                             if ($key == 0) {
                                 $variantProduct->is_variant_display_product = 1;
                             }
 //                            }
+                        } else {
+                            $variantProduct->is_variant_display_product = 1;
                         }
-                        else {
-                            $variantProduct->is_variant_display_product = 0;
-                        }
+
 
                         $variantProduct->base_name = $request->input('base_name');
                         $variantProduct->variant_name = $variantNames[$index];
@@ -523,8 +513,8 @@ class ProductController extends Controller
         try {
             $product->days()->detach();
             $product = $this->productRepository->update($input, $id);
-            //checking
-            if($product->variantProducts()->exists())
+
+            if($input['variant_product'])
             {
                 $product->product_type = Product::VARIANT_BASE_PRODUCT;
                 $product->save();
@@ -857,7 +847,6 @@ class ProductController extends Controller
         $product->save();
 
         return response()->json(true, 200);
-
     }
 }
 
