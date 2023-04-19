@@ -514,7 +514,7 @@ class ProductController extends Controller
             $product->days()->detach();
             $product = $this->productRepository->update($input, $id);
 
-            if($input['variant_product'])
+            if(isset($input['variant_product']))
             {
                 $product->product_type = Product::VARIANT_BASE_PRODUCT;
                 $product->save();
