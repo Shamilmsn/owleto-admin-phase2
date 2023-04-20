@@ -131,7 +131,7 @@ class ProductAPIController extends Controller
      */
     public function categories(Request $request)
     {
-        $this->productRepository->skipCache();
+//        $this->productRepository->skipCache();
 
         try {
             $this->productRepository->pushCriteria(new RequestCriteria($request));
@@ -143,13 +143,23 @@ class ProductAPIController extends Controller
 
             info($request);
 
-            $products = $this->productRepository->with('market')
+//            $products = $this->productRepository->with('market')
+//                ->where('is_enabled', true)
+//                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
+//                ->where('deliverable', 1)
+//                ->where('is_approved', true)
+//                ->Where(function ($query) {
+//                    $query->where('is_variant_display_product', true);
+//                });
+
+            $products = $this->productRepository
                 ->where('is_enabled', true)
-                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
                 ->where('deliverable', 1)
                 ->where('is_approved', true)
+//                    ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
                 ->Where(function ($query) {
-                    $query->where('is_variant_display_product', true);
+                    $query->where('is_variant_display_product', true)
+                        ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
                 });
 
 
