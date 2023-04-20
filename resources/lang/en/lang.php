@@ -1893,7 +1893,23 @@ return [
     'permission_merchant-requests.edit' => 'Edit merchant Requests',
     'permission_merchant-requests.destroy' => 'Delete merchant Requests',
     'permission_merchant-requests.create' => 'Create merchant Requests',
-    'markets_payout_market_name' => 'Vendor'
+    'markets_payout_market_name' => 'Vendor',
 
+    'permission_pickup-orders' => 'Pickup Orders',
+    'permission_pickup-orders.update' => 'Update pickup orders',
+    'permission_pickup-orders.store' => 'Store pickup orders',
+    'permission_pickup-orders.show' => 'View pickup orders',
+    'permission_pickup-orders.index' => 'List pickup orders',
+    'permission_pickup-orders.edit' => 'Edit pickup orders',
+    'permission_pickup-orders.destroy' => 'Delete pickup orders',
+    'permission_pickup-orders.create' => 'Create pickup orders',
 
+    'permission_deliver-orders' => 'Deliver Orders',
+    'permission_deliver-orders.update' => 'Update deliver orders',
+    'permission_deliver-orders.store' => 'Store deliver orders',
+    'permission_deliver-orders.show' => 'View deliver orders',
+    'permission_deliver-orders.index' => 'List deliver orders',
+    'permission_deliver-orders.edit' => 'Edit deliver orders',
+    'permission_deliver-orders.destroy' => 'Delete deliver orders',
+    'permission_deliver-orders.create' => 'Create deliver orders',
 ];

@@ -41,8 +41,6 @@ class Order extends Model
 {
 
     public $table = 'orders';
-
-
     public $fillable = [
         'user_id',
         'order_status_id',
@@ -139,6 +137,9 @@ class Order extends Model
     const STATUS_CANCELED = 6;
     const STATUS_DRIVER_ASSIGNED = 7;
     const STATUS_ACCEPTED = 8;
+
+    const PICKED = 'PICKED';
+    const DELIVERED = 'DELIVERED';
 
     public function customFieldsValues()
     {
