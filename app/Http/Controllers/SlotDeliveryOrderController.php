@@ -16,9 +16,11 @@ use App\Models\ProductOrder;
 use App\Models\SlotedDeliveryDriverHistory;
 use App\Models\User;
 use App\Notifications\DriverAssignedNotification;
+use App\Notifications\DriverAssignedNotificationToUser;
 use App\Repositories\OrderRepository;
 use App\Repositories\ProductAttributeOptionRepository;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use Laracasts\Flash\Flash;
@@ -92,6 +94,11 @@ class SlotDeliveryOrderController extends Controller
         $driverId = $request->driver_id;
         $driver = Driver::where('user_id', $driverId)->first();
 
+        if (!$driver) {
+            Flash::error(__('Driver Not Found'));
+            return redirect(route('deliver-orders.index'));
+        }
+
         $orderIds = explode(',', $request->ordersIds);
         foreach ($orderIds as $orderId){
 
@@ -100,24 +107,11 @@ class SlotDeliveryOrderController extends Controller
                 ->where('order_id', $orderId)
                 ->first();
 
-            if ($order->order_status_id == OrderStatus::STATUS_CANCELED) {
-                Flash::error(__('order already canceled'));
-                return redirect(route('deliver-orders.index'));
-            }
-
-            if ($order->is_order_approved != 1) {
-                Flash::error(__('Merchant not approved the order'));
-                return redirect(route('deliver-orders.index'));
-            }
-
-            if (!$driver) {
-                Flash::error(__('Driver Not Found'));
-                return redirect(route('deliver-orders.index'));
-            }
-
-            if($slotedDeliveryHistory){
-
+            if ($order->is_order_approved && $slotedDeliveryHistory) {
                 $order->picked_or_delivered = Order::DELIVERED;
+                $order->order_status_id = OrderStatus::STATUS_DRIVER_ASSIGNED;
+                $order->driver_id = $driverId;
+                $order->driver_assigned_at = Carbon::now();
                 $order->save();
 
                 $slotedDeliveryHistory->order_id = $orderId;
@@ -126,7 +120,28 @@ class SlotDeliveryOrderController extends Controller
                 $slotedDeliveryHistory->status =
                     SlotedDeliveryDriverHistory::STATUS_DELIVER_ASSIGNED;
                 $slotedDeliveryHistory->save();
+
+                try {
+
+                    $user = User::findorFail($order->user_id);
+                    $userFcmToken = $user->device_token;
+
+                    $attributes['title'] = 'Owleto Order';
+                    $attributes['message'] = 'Your Order with OrderID '
+                        . $order->id . ' has been Shipped';
+                    $attributes['data'] = $order->toArray();
+                    $attributes['redirection_type'] = Order::STATUS_ON_THE_WAY;
+                    $attributes['redirection_id'] = $order->id;
+                    $attributes['type'] = $order->type;
+
+                    Notification::route('fcm', $userFcmToken)
+                        ->notify(new DriverAssignedNotificationToUser($attributes));
+
+                } catch (Exception $e) {
+
+                }
             }
+
         }
         Flash::success(__('Driver Assigned Successfully'));
         return redirect(route('deliver-orders.index'));

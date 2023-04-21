@@ -14,10 +14,14 @@ use App\Models\PaymentMethod;
 use App\Models\ProductAttributeOption;
 use App\Models\ProductOrder;
 use App\Models\SlotedDeliveryDriverHistory;
+use App\Models\User;
+use App\Notifications\DriverAssignedNotification;
+use App\Notifications\DriverAssignedNotificationToUser;
 use App\Repositories\OrderRepository;
 use App\Repositories\ProductAttributeOptionRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Laracasts\Flash\Flash;
 
 class SlotPickUpOrderController extends Controller

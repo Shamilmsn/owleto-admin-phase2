@@ -169,6 +169,9 @@ class SlotedDeliveryOrderDataTable extends DataTable
                             PaymentMethod::PAYMENT_METHOD_WALLET]);
                 });
             })
+            ->whereNull('is_canceled')
+            ->where('order_status_id', '!=', OrderStatus::STATUS_CANCELED)
+            ->where('order_status_id', '!=', OrderStatus::STATUS_DELIVERED)
             ->whereHas('deliveryType', function ($query){
                 $query->where('is_sloted', true);
             })
