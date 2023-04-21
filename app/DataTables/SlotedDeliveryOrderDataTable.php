@@ -54,10 +54,10 @@ class SlotedDeliveryOrderDataTable extends DataTable
                     });
                 }
 
-                if (request()->filled('filter.area_id')) {
-                    $query->whereHas('market', function ($query) {
-                        $query->where('area_id',
-                            request('filter.area_id'));
+                if (request()->filled('filter.pincode')) {
+                    $query->whereHas('deliveryAddress', function ($query) {
+                        $query->where('pincode',
+                            request('filter.pincode'));
                     });
                 }
 

@@ -66,12 +66,9 @@
                     </select>
                 </div>
                 <div class="form-group ml-2">
-                    <select class="select2 form-control col-7" id="area_id">
-                        <option value="" selected>Select Area</option>
-                        @foreach($areas as $area)
-                            <option value="{{ $area->id }}">{{ $area->name }}</option>
-                        @endforeach
-                    </select>
+                    <input type="text" class="form-control"
+                           placeholder="Search by pincode"
+                           id="pincode">
                 </div>
             </div>
             <div class="row">
