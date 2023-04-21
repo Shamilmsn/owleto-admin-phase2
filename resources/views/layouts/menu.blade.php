@@ -135,14 +135,31 @@
 @endcan
 
 @can('orders.index')
-    <li class="nav-item has-treeview {{ Request::is('orders*') || Request::is('orderStatuses*') || Request::is('orderRequests*')
-                    || Request::is('deliveryAddresses*')
-                    || Request::is('package-orders*') || Request::is('order-request-orders*') || Request::is('todays-package-orders*')
-                     || Request::is('return-requests*') || Request::is('pickup-delivery-orders*')? 'menu-open' : '' }}">
+    <li class="nav-item has-treeview {{
+    Request::is('orders*') ||
+    Request::is('orderStatuses*') ||
+    Request::is('orderRequests*') ||
+    Request::is('deliveryAddresses*') ||
+    Request::is('package-orders*') ||
+    Request::is('order-request-orders*') ||
+    Request::is('todays-package-orders*') ||
+    Request::is('pickup-orders*') ||
+    Request::is('deliver-orders*') ||
+    Request::is('return-requests*') ||
+    Request::is('pickup-delivery-orders*')? 'menu-open' : '' }}">
 
-        <a href="#" class="nav-link {{ Request::is('orders*') || Request::is('orderStatuses*') || Request::is('orderRequests*')
-                    || Request::is('order-request-orders*') || Request::is('deliveryAddresses*') || Request::is('todays-package-orders*')
-                    || Request::is('return-requests*') || Request::is('package-orders*') || Request::is('pickup-delivery-orders*')? 'active' : '' }}"> @if($icons)
+        <a href="#" class="nav-link {{
+            Request::is('orders*') ||
+            Request::is('orderStatuses*') ||
+            Request::is('orderRequests*')||
+            Request::is('order-request-orders*') ||
+            Request::is('deliveryAddresses*') ||
+            Request::is('todays-package-orders*')||
+            Request::is('return-requests*') ||
+            Request::is('package-orders*') ||
+            Request::is('pickup-orders*') ||
+            Request::is('deliver-orders*') ||
+            Request::is('pickup-delivery-orders*')? 'active' : '' }}"> @if($icons)
                 <i class="nav-icon fa fa-shopping-bag"></i>@endif
             <p>{{trans('lang.order_plural')}} <i class="right fa fa-angle-left"></i>
             </p>
@@ -159,28 +176,41 @@
                     </a>
                 </li>
             @endcan
-            @can('pickup-orders.index')
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::is('pickup-orders*') ? 'active' : '' }}"
-                       href="{!! route('pickup-orders.index') !!}">
+                <li class="nav-item has-treeview {{
+                    Request::is('pickup-orders*') ||
+                    Request::is('deliver-orders*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{
+                        Request::is('pickup-orders*') ||
+                        Request::is('deliver-orders*') ? 'active' : '' }}">
                         @if($icons)
-                            <i class="nav-icon fa fa-shopping-bag"></i>
-                        @endif
-                        <p>{{trans('lang.permission_pickup-orders')}}</p>
+                            <i class="nav-icon fa fa-shopping-bag"></i>@endif
+                        <p>Sloted Orders <i class="right fa fa-angle-left"></i></p>
                     </a>
+                    <ul class="nav nav-treeview">
+                        @can('pickup-orders.index')
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::is('pickup-orders*') ? 'active' : '' }}"
+                                   href="{!! route('pickup-orders.index') !!}">
+                                    @if($icons)
+                                        <i class="nav-icon fa fa-shopping-bag"></i>
+                                    @endif
+                                    <p>{{trans('lang.permission_pickup-orders')}}</p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('deliver-orders.index')
+                            <li class="nav-item">
+                                <a class="nav-link {{ Request::is('deliver-orders*') ? 'active' : '' }}"
+                                   href="{!! route('deliver-orders.index') !!}">
+                                    @if($icons)
+                                        <i class="nav-icon fa fa-shopping-bag"></i>
+                                    @endif
+                                    <p>{{trans('lang.permission_deliver-orders')}}</p>
+                                </a>
+                            </li>
+                        @endcan
+                    </ul>
                 </li>
-            @endcan
-            @can('deliver-orders.index')
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::is('deliver-orders*') ? 'active' : '' }}"
-                       href="{!! route('deliver-orders.index') !!}">
-                        @if($icons)
-                            <i class="nav-icon fa fa-shopping-bag"></i>
-                        @endif
-                        <p>{{trans('lang.permission_deliver-orders')}}</p>
-                    </a>
-                </li>
-            @endcan
             @can('package-orders.index')
                 <li class="nav-item">
                     <a class="nav-link {{ Request::is('package-orders*') ? 'active' : '' }}" href="{!! route('package-orders.index') !!}">@if($icons)
