@@ -144,6 +144,12 @@ Route::middleware('auth')->group(function () {
     ]);
 
     Route::resource('orders', 'OrderController');
+    Route::resource('pickup-orders', 'SlotPickUpOrderController');
+    Route::post('pickup-orders/assign-drivers',
+        'SlotPickUpOrderController@assignDriver');
+    Route::resource('deliver-orders', 'SlotDeliveryOrderController');
+    Route::post('deliver-orders/assign-drivers',
+        'SlotDeliveryOrderController@assignDriver');
 
     Route::resource('notifications', 'NotificationController')->except([
         'create', 'store', 'update','edit',

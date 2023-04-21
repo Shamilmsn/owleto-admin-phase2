@@ -1,22 +1,18 @@
 @extends('layouts.app')
-
 @section('content')
-
   <div class="content-header">
     <div class="container-fluid">
       <div class="row mb-2">
         <div class="col-sm-6">
-          <h1 class="m-0 text-dark">{{trans('lang.order_plural')}}
+          <h1 class="m-0 text-dark">{{trans('lang.permission_pickup-orders')}}
           </h1>
         </div>
       </div>
     </div>
   </div>
-
   <div class="content">
     <div class="clearfix"></div>
     @include('flash::message')
-
     <div class="card">
       <div class="card-header">
         <ul class="nav nav-tabs align-items-end card-header-tabs w-100">
@@ -69,11 +65,19 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="form-group ml-2">
+                    <select class="select2 form-control col-7" id="area_id">
+                        <option value="" selected>Select Area</option>
+                        @foreach($areas as $area)
+                            <option value="{{ $area->id }}">{{ $area->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
-
             <div class="row">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Search by order ID" id="search">
+                    <input type="text" class="form-control" placeholder="Search by order ID"
+                           id="search">
                 </div>
                 <div class="form-group ml-2">
                     <input type="text" name="datetimes" class="form-control" id="order_date"/>
@@ -85,11 +89,10 @@
                     <a id="btn-clear" class="btn btn-primary ml-2 text-white">Clear</a>
                 </div>
             </div>
-
         </form>
       </div>
       <div class="card-body table-responsive">
-        @include('orders.table')
+        @include('pick-up-orders.table')
         <div class="clearfix"></div>
       </div>
     </div>
@@ -98,9 +101,9 @@
   <div class="modal fade" id="drivers-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
           <div class="modal-content">
-              <form method="post" action="{{url('assign-driver-to-orders')}}">
+              <form method="post" action="{{url('pickup-orders/assign-drivers')}}">
                   @csrf
-                  <input type="hidden" name="order_id" id="order_id">
+                  <input type="hidden" name="ordersIds" id="order_ids">
                   <div class="modal-header">
                       <h5 class="modal-title" id="exampleModalLabel">Assign Driver</h5>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -127,13 +130,43 @@
   <script>
       $(function (){
 
-          var $table = $('#tbl-order');
+          var table = $('#tbl-order').DataTable();
+          let orderIds = [];
 
-          $('#tbl-order').on('click', '.assign-driver', function (e){
-            e.preventDefault();
-            var orderId = $(this).attr('data-id');
-            $('#order_id').val(orderId);
-            $('#drivers-modal').modal('show');
+          $('#tbl-order').on('click', '.ids-all-select', function() {
+              var orderId = $(this).attr('data-id');
+              if($(this).is(':checked')){
+                  if (orderIds.indexOf(orderId) === -1) {
+                      orderIds.push(parseInt(orderId));
+                  }
+              } else {
+                  orderIds = $.grep(orderIds, function(value) {
+                      return value != orderId;
+                  });
+              }
+          });
+
+          $('#select-all').on('change', function() {
+              $('input[name="ids[]"]').prop('checked', $(this).prop('checked'));
+              if($(this).is(':checked')) {
+                  $('input[name="ids[]"]').each(function () {
+                      var orderId = $(this).attr('data-id');
+                      if (orderIds.indexOf(orderId) === -1) {
+                          orderIds.push(parseInt(orderId));
+                      }
+                  });
+              } else {
+                  $('input[name="ids[]"]').each(function () {
+                      var orderId = $(this).attr('data-id');
+                      orderIds.pop(orderId);
+                  });
+              }
+          });
+
+          $('#tbl-order').on('click', '#driver-assign', function (e){
+              e.preventDefault();
+              $("#order_ids").val(orderIds.join(','));
+              $('#drivers-modal').modal('show');
           });
 
           $('#tbl-order').on('click', '.collect-cash', function (e){

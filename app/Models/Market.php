@@ -10,6 +10,7 @@
 namespace App\Models;
 
 use Eloquent as Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Spatie\Image\Manipulations;
 use Spatie\MediaLibrary\HasMedia\HasMedia;
@@ -302,8 +303,9 @@ class Market extends Model implements HasMedia
         return $this->belongsTo(\App\Models\Field::class);
     }
 
-
-
-
+    public function area() :belongsTo
+    {
+        return $this->belongsTo(Area::class);
+    }
 
 }
