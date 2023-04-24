@@ -32,11 +32,11 @@
         <li class="nav-item">
           <a class="nav-link active" href="{!! url()->current() !!}"><i class="fa fa-list mr-2"></i>{{trans('lang.delivery_type_table')}}</a>
         </li>
-{{--        @can('deliveryTypes.create')--}}
-{{--        <li class="nav-item">--}}
-{{--          <a class="nav-link" href="{!! route('deliveryTypes.create') !!}"><i class="fa fa-plus mr-2"></i>{{trans('lang.delivery_type_create')}}</a>--}}
-{{--        </li>--}}
-{{--        @endcan--}}
+        @can('deliveryTypes.create')
+        <li class="nav-item">
+          <a class="nav-link" href="{!! route('deliveryTypes.create') !!}"><i class="fa fa-plus mr-2"></i>{{trans('lang.delivery_type_create')}}</a>
+        </li>
+        @endcan
         @include('layouts.right_toolbar', compact('dataTable'))
       </ul>
     </div>
