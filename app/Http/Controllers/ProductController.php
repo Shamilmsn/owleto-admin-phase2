@@ -832,6 +832,7 @@ class ProductController extends Controller
 
     public function addToFeatured(Request $request)
     {
+        info($request->product_id);
         $product = Product::findOrFail($request->product_id);
         $product->featured = true;
         $product->save();
