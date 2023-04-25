@@ -57,6 +57,15 @@ class DeliveryTypeDataTable extends DataTable
                 'title' => trans('lang.delivery_type_name'),
 
             ],
+//            [
+//                'data' => 'start_time',
+//                'title' => 'Start Time',
+//
+//            ], [
+//                'data' => 'end_time',
+//                'title' =>'End Time',
+//
+//            ],
             [
                 'data' => 'charge',
                 'title' => trans('lang.charge_name'),
