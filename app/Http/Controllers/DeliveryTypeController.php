@@ -114,7 +114,6 @@ class DeliveryTypeController extends Controller
         if($hasCustomField) {
             $html = generateCustomField($customFields, $customFieldsValues);
         }
-
         return view('delivery_types.edit')->with('deliveryType', $deliveryType)->with("customFields", isset($html) ? $html : false);
     }
 

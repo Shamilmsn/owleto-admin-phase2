@@ -43,6 +43,46 @@
     </div>
   </div>
 
+
+
+  <script>
+    function showTimeDivFun() {
+      var checkBox = document.getElementById("useTimeCheck");
+      var timeDiv = document.getElementById("timeDiv");
+      if (checkBox.checked == true){
+        timeDiv.style.display = "block";
+      } else {
+        timeDiv.style.display = "none";
+      }
+    }
+  </script>
+<h5>Use Time
+  <input type="checkbox" id="useTimeCheck" value="1" name="isTimeType" onclick="showTimeDivFun()" {{isset($deliveryType->isTimeType)?($deliveryType->isTimeType=='1'?'checked':''):''}}>
+</h5>
+
+
+
+
+
+
+  <div id="timeDiv" style="display: {{isset($deliveryType->isTimeType)?($deliveryType->isTimeType=='1'?'block':'none'):'none'}}">
+  <hr/>
+  <div class="form-group row ">
+    <label for="start_time" class="col-3 control-label text-right">Start Time</label>
+    <div class="col-9">
+      <input class="form-control" placeholder="Enter the additional amount" name="start_time" type="time" id="start_time" value="{{isset($deliveryType->start_time)?$deliveryType->start_time:''}}">
+    </div>
+  </div>
+
+
+  <div class="form-group row ">
+    <label for="start_time" class="col-3 control-label text-right">End Time</label>
+    <div class="col-9">
+      <input class="form-control" placeholder="Enter the additional amount" name="end_time" type="time" id="end_time" value="{{isset($deliveryType->end_time)?$deliveryType->end_time:''}}">
+    </div>
+  </div>
+
+  </div>
 </div>
 @if($customFields)
 <div class="clearfix"></div>

@@ -16,7 +16,10 @@ class DeliveryType extends Model
         'name',
         'charge',
         'base_distance',
-        'additional_amount'
+        'additional_amount',
+        'start_time',
+        'end_time',
+        'isTimeType'
     ];
 
     const EXPRESS = 'EXPRESS';
