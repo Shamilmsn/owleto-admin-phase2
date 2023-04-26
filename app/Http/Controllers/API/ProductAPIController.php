@@ -141,8 +141,6 @@ class ProductAPIController extends Controller
 
             $products = $this->productRepository->pushCriteria(new ProductsOfCategoriesCriteria($request));
 
-            info($request);
-
 //            $products = $this->productRepository->with('market')
 //                ->where('is_enabled', true)
 //                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
@@ -161,6 +159,9 @@ class ProductAPIController extends Controller
                     $query->where('is_variant_display_product', true);
 //                        ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
                 });
+
+            info("here the starter");
+            info($products->get());
 
 
 //            info($products->get());
@@ -200,6 +201,9 @@ class ProductAPIController extends Controller
             }
 
             $products = $products->get();
+
+            info("here the product");
+            info($products);
 
         } catch (RepositoryException $e) {
             return $this->sendError($e->getMessage());
