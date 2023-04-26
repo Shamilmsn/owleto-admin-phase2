@@ -150,6 +150,7 @@ class ProductAPIController extends Controller
                     $query->where('is_variant_display_product', true)
                         ->orWhere('product_type',Product::STANDARD_PRODUCT);
                 });
+
 //            $products = $this->productRepository
 //                ->where('is_enabled', true)
 //                ->where('deliverable', 1)
@@ -193,9 +194,6 @@ class ProductAPIController extends Controller
             }
 
             $products = $products->get();
-
-            info("here the product");
-            info($products);
 
         } catch (RepositoryException $e) {
             return $this->sendError($e->getMessage());
