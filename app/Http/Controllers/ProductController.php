@@ -116,7 +116,6 @@ class ProductController extends Controller
      */
     public function index(ProductDataTable $productDataTable)
     {
-        dd(55555555555555555555555555);
         return $productDataTable->render('products.index');
     }
 
