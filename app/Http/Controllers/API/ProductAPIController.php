@@ -141,11 +141,11 @@ class ProductAPIController extends Controller
 
             $products = $this->productRepository->pushCriteria(new ProductsOfCategoriesCriteria($request));
 
-            $products = $this->productRepository->with('market');
-//                ->where('is_enabled', true)
+            $products = $this->productRepository->with('market')
+                ->where('is_enabled', true)
 //                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
-//                ->where('deliverable', 1)
-//                ->where('is_approved', true)
+                ->where('deliverable', 1)
+                ->where('is_approved', true);
 //                ->Where(function ($query) {
 //                    $query->where('is_variant_display_product', true);
 //                });
