@@ -148,7 +148,7 @@ class ProductAPIController extends Controller
                 ->where('is_approved', true)
                 ->Where(function ($query) {
                     $query->where('is_variant_display_product', true)
-                        ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
+                        ->orWhere('product_type',Product::STANDARD_PRODUCT);
                 });
 //            $products = $this->productRepository
 //                ->where('is_enabled', true)
