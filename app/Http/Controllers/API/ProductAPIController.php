@@ -149,10 +149,7 @@ class ProductAPIController extends Controller
                 ->Where(function ($query) {
                     $query->where('is_variant_display_product', true);
 //                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
-                })
-                ->orderByDesc('id')
-                ->get();
-
+                });
 
 
 //            $products = $this->productRepository->with('market')
