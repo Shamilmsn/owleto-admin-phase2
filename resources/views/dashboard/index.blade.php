@@ -200,6 +200,12 @@
     <script src="{{asset('plugins/chart.js/Chart.min.js')}}"></script>
 @endpush
 @push('scripts')
+    <script>
+        Echo.channel('trades')
+            .listen('OrderCreatedEvent', (e) => {
+                console.log(e.trade);
+            })
+    </script>
     <script type="text/javascript">
 
         function renderChart(chartNode, data, labels) {
