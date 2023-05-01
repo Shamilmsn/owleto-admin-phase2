@@ -476,7 +476,6 @@ class ProductController extends Controller
      */
     public function update($id, Request $request)
     {
-//        return $request->is_variant_display_product;
 
         $sectors = [
             Field::RESTAURANT,
@@ -495,11 +494,6 @@ class ProductController extends Controller
 
         $this->productRepository->pushCriteria(new ProductsOfUserCriteria(auth()->id()));
         $product = $this->productRepository->findWithoutFail($id);
-
-        if($product->type != Product::VARIANT_BASE_PRODUCT) {
-            $product->is_variant_display_product = $request->is_variant_display_product;
-            $product->save();
-        }
 
 
         if (empty($product)) {
