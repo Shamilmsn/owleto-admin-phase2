@@ -108,8 +108,9 @@ class ProductAPIController extends Controller
                     ->where('is_approved', true)
                     ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
                     ->Where(function ($query) {
-                        $query->where('is_variant_display_product', true);
+                        $query->where('is_variant_display_product', true)
 //                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
+                        ->orWhere('product_type',Product::STANDARD_PRODUCT);
                     })
                     ->orderByDesc('id')
                     ->get();
@@ -147,8 +148,8 @@ class ProductAPIController extends Controller
                 ->where('is_approved', true)
                 ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
                 ->Where(function ($query) {
-                    $query->where('is_variant_display_product', true);
-//                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
+                    $query->where('is_variant_display_product', true)
+                            ->orWhere('product_type',Product::STANDARD_PRODUCT);
                 });
 
 
