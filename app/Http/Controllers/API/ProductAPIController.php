@@ -55,7 +55,7 @@ class ProductAPIController extends Controller
         $this->productRepository = $productRepo;
         $this->customFieldRepository = $customFieldRepo;
         $this->uploadRepository = $uploadRepo;
-        $this->productRepository->skipCache();
+//        $this->productRepository->skipCache();
     }
 
     /**
