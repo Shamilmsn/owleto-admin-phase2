@@ -144,42 +144,93 @@ class OrderDataTable extends DataTable
      */
     public function query(Order $model)
     {
-        $query = $model->newQuery()
-            ->with('deliveryType')
-            ->with("user")
-            ->with("orderStatus")
-            ->with("market.field")
-            ->with('payment')
-            ->where(function ($query) {
-                $query->where(function ($q) {
-                    $q->where('type', Order::PRODUCT_TYPE)
-                        ->where("payment_method_id", PaymentMethod::PAYMENT_METHOD_RAZORPAY)
-                        ->where('payment_status', 'SUCCESS');
-                })->orWhere(function ($q) {
-                    $q->where('type', Order::PRODUCT_TYPE)
-                        ->whereIn("payment_method_id",
-                            [PaymentMethod::PAYMENT_METHOD_COD,
-                                PaymentMethod::PAYMENT_METHOD_WALLET]);
-                });
-            });
+        if (auth()->user()->hasRole('admin')) {
 
-            if (auth()->user()->hasRole('vendor_owner')) {
+            return $model->newQuery()
+                ->with('deliveryType')
+                ->with("user")
+                ->with("orderStatus")
+                ->with("market")
+                ->with('payment')
+                ->where(function ($query) {
+                    $query->where(function ($q) {
+                        $q->where('type', Order::PRODUCT_TYPE)
+                            ->where("payment_method_id", PaymentMethod::PAYMENT_METHOD_RAZORPAY)
+                            ->where('payment_status', 'SUCCESS');
+                    })->orWhere(function ($q) {
+                        $q->where('type', Order::PRODUCT_TYPE)
+                            ->whereIn("payment_method_id",[ PaymentMethod::PAYMENT_METHOD_COD, PaymentMethod::PAYMENT_METHOD_WALLET]);
+                    });
+                })->latest();
 
-                $userMarketIds = Market::whereHas('users', function ($query) {
-                    $query->where('user_id', Auth::id());
-                })->pluck('id');
+        } else if (auth()->user()->hasRole('vendor_owner')) {
 
-                $query = $query->join("product_orders", "orders.id", "=", "product_orders.order_id")
-                    ->join("products", "products.id", "=", "product_orders.product_id")
-                    ->join("user_markets", "user_markets.market_id", "=", "products.market_id")
-                    ->whereIn('orders.market_id', $userMarketIds);
-            }
+            $userMarketIds = Market::whereHas('users', function ($query){
+                $query->where('user_id', Auth::id());
+            })->pluck('id');
 
-            $query = $query->latest();
+            return $model->newQuery()->with("user")
+                ->with("orderStatus")
+                ->with('payment')
+                ->with("market.field")
+                ->join("product_orders", "orders.id", "=", "product_orders.order_id")
+                ->join("products", "products.id", "=", "product_orders.product_id")
+                ->join("user_markets", "user_markets.market_id", "=", "products.market_id")
+                ->whereIn('orders.market_id', $userMarketIds)
+                ->where(function ($query) {
+                    $query->where(function ($q) {
+                        $q->where('type', Order::PRODUCT_TYPE)
+                            ->where("payment_method_id", PaymentMethod::PAYMENT_METHOD_RAZORPAY)
+                            ->where('payment_status', 'SUCCESS');
+                    })->orWhere(function ($q) {
+                        $q->where('type', Order::PRODUCT_TYPE)
+                          ->whereIn("payment_method_id",[ PaymentMethod::PAYMENT_METHOD_COD, PaymentMethod::PAYMENT_METHOD_WALLET]);
+                    });
+                })
+                ->orderBy('orders.created_at', 'desc')
+                ->select('orders.*');
 
-            return $query;
+        } else if (auth()->user()->hasRole('client')) {
+
+            return $model->newQuery()->with("user")->with("orderStatus")
+                ->with('payment')->with("market.field")
+                ->where(function ($query) {
+                    $query->where(function ($q) {
+                        $q->where('type', Order::PRODUCT_TYPE)
+                            ->where("payment_method_id", PaymentMethod::PAYMENT_METHOD_RAZORPAY)
+                            ->where('payment_status', 'SUCCESS');
+                    })->orWhere(function ($q) {
+                        $q->where('type', Order::PRODUCT_TYPE)
+                            ->whereIn("payment_method_id",[ PaymentMethod::PAYMENT_METHOD_COD, PaymentMethod::PAYMENT_METHOD_WALLET]);
+                    });
+                })
+                ->orderBy('orders.created_at', 'desc')
+                ->select('orders.*');
+        } else if (auth()->user()->hasRole('driver')) {
+            return $model->newQuery()->with("user")->with("orderStatus")->with('payment')
+                ->where(function ($query) {
+                    $query->where(function ($q) {
+                            $q->where('type', Order::PRODUCT_TYPE)
+                            ->where("payment_method_id", PaymentMethod::PAYMENT_METHOD_RAZORPAY)
+                            ->where('payment_status', 'SUCCESS');
+                    })->orWhere(function ($q) {
+                            $q->where('type', Order::PRODUCT_TYPE)
+                              ->whereIn("payment_method_id",[ PaymentMethod::PAYMENT_METHOD_COD, PaymentMethod::PAYMENT_METHOD_WALLET]);
+                    });
+                })
+                ->orderBy('orders.created_at', 'desc')
+                ->select('orders.*');
+        }
+        else {
+            return $model->newQuery()
+                ->with("user"
+                )->with("market.field")
+                ->with("orderStatus")
+                ->with('payment')
+                ->where('type', Order::PRODUCT_TYPE)
+                ->orderBy('orders.created_at', 'desc');
+        }
     }
-
 
     /**
      * Optional method if you want to use html builder.
