@@ -173,9 +173,6 @@ class ProductAPIController extends Controller
 ////                        ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
 //                });
 
-            info("here the starter");
-            info($products->get());
-
             if ($request->search_name) {
                 $products = $products->where('base_name', 'like', '%' . $request->search_name . '%')
                     ->where('base_name', 'like', '%' . $request->search_name . '%')
