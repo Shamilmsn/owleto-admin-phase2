@@ -144,93 +144,42 @@ class OrderDataTable extends DataTable
      */
     public function query(Order $model)
     {
-        if (auth()->user()->hasRole('admin')) {
+        $query = $model->newQuery()
+            ->with('deliveryType')
+            ->with("user")
+            ->with("orderStatus")
+            ->with("market.field")
+            ->with('payment')
+            ->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->where('type', Order::PRODUCT_TYPE)
+                        ->where("payment_method_id", PaymentMethod::PAYMENT_METHOD_RAZORPAY)
+                        ->where('payment_status', 'SUCCESS');
+                })->orWhere(function ($q) {
+                    $q->where('type', Order::PRODUCT_TYPE)
+                        ->whereIn("payment_method_id",
+                            [PaymentMethod::PAYMENT_METHOD_COD,
+                                PaymentMethod::PAYMENT_METHOD_WALLET]);
+                });
+            });
 
-            return $model->newQuery()
-                ->with('deliveryType')
-                ->with("user")
-                ->with("orderStatus")
-                ->with("market")
-                ->with('payment')
-                ->where(function ($query) {
-                    $query->where(function ($q) {
-                        $q->where('type', Order::PRODUCT_TYPE)
-                            ->where("payment_method_id", PaymentMethod::PAYMENT_METHOD_RAZORPAY)
-                            ->where('payment_status', 'SUCCESS');
-                    })->orWhere(function ($q) {
-                        $q->where('type', Order::PRODUCT_TYPE)
-                            ->whereIn("payment_method_id",[ PaymentMethod::PAYMENT_METHOD_COD, PaymentMethod::PAYMENT_METHOD_WALLET]);
-                    });
-                })->latest();
+            if (auth()->user()->hasRole('vendor_owner')) {
 
-        } else if (auth()->user()->hasRole('vendor_owner')) {
+                $userMarketIds = Market::whereHas('users', function ($query) {
+                    $query->where('user_id', Auth::id());
+                })->pluck('id');
 
-            $userMarketIds = Market::whereHas('users', function ($query){
-                $query->where('user_id', Auth::id());
-            })->pluck('id');
+                $query = $query->join("product_orders", "orders.id", "=", "product_orders.order_id")
+                    ->join("products", "products.id", "=", "product_orders.product_id")
+                    ->join("user_markets", "user_markets.market_id", "=", "products.market_id")
+                    ->whereIn('orders.market_id', $userMarketIds);
+            }
 
-            return $model->newQuery()->with("user")
-                ->with("orderStatus")
-                ->with('payment')
-                ->with("market.field")
-                ->join("product_orders", "orders.id", "=", "product_orders.order_id")
-                ->join("products", "products.id", "=", "product_orders.product_id")
-                ->join("user_markets", "user_markets.market_id", "=", "products.market_id")
-                ->whereIn('orders.market_id', $userMarketIds)
-                ->where(function ($query) {
-                    $query->where(function ($q) {
-                        $q->where('type', Order::PRODUCT_TYPE)
-                            ->where("payment_method_id", PaymentMethod::PAYMENT_METHOD_RAZORPAY)
-                            ->where('payment_status', 'SUCCESS');
-                    })->orWhere(function ($q) {
-                        $q->where('type', Order::PRODUCT_TYPE)
-                          ->whereIn("payment_method_id",[ PaymentMethod::PAYMENT_METHOD_COD, PaymentMethod::PAYMENT_METHOD_WALLET]);
-                    });
-                })
-                ->orderBy('orders.created_at', 'desc')
-                ->select('orders.*');
+            $query = $query->latest();
 
-        } else if (auth()->user()->hasRole('client')) {
-
-            return $model->newQuery()->with("user")->with("orderStatus")
-                ->with('payment')->with("market.field")
-                ->where(function ($query) {
-                    $query->where(function ($q) {
-                        $q->where('type', Order::PRODUCT_TYPE)
-                            ->where("payment_method_id", PaymentMethod::PAYMENT_METHOD_RAZORPAY)
-                            ->where('payment_status', 'SUCCESS');
-                    })->orWhere(function ($q) {
-                        $q->where('type', Order::PRODUCT_TYPE)
-                            ->whereIn("payment_method_id",[ PaymentMethod::PAYMENT_METHOD_COD, PaymentMethod::PAYMENT_METHOD_WALLET]);
-                    });
-                })
-                ->orderBy('orders.created_at', 'desc')
-                ->select('orders.*');
-        } else if (auth()->user()->hasRole('driver')) {
-            return $model->newQuery()->with("user")->with("orderStatus")->with('payment')
-                ->where(function ($query) {
-                    $query->where(function ($q) {
-                            $q->where('type', Order::PRODUCT_TYPE)
-                            ->where("payment_method_id", PaymentMethod::PAYMENT_METHOD_RAZORPAY)
-                            ->where('payment_status', 'SUCCESS');
-                    })->orWhere(function ($q) {
-                            $q->where('type', Order::PRODUCT_TYPE)
-                              ->whereIn("payment_method_id",[ PaymentMethod::PAYMENT_METHOD_COD, PaymentMethod::PAYMENT_METHOD_WALLET]);
-                    });
-                })
-                ->orderBy('orders.created_at', 'desc')
-                ->select('orders.*');
-        }
-        else {
-            return $model->newQuery()
-                ->with("user"
-                )->with("market.field")
-                ->with("orderStatus")
-                ->with('payment')
-                ->where('type', Order::PRODUCT_TYPE)
-                ->orderBy('orders.created_at', 'desc');
-        }
+            return $query;
     }
+
 
     /**
      * Optional method if you want to use html builder.
@@ -289,6 +238,7 @@ class OrderDataTable extends DataTable
                 'data' => 'driver_id',
                 'name' => 'driver_id',
                 'title' => 'Driver',
+                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'is_collected_from_driver',
@@ -298,14 +248,17 @@ class OrderDataTable extends DataTable
             [
                 'data' => 'driver_commission_amount',
                 'title' => 'Driver Commission',
+                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'owleto_commission_amount',
                 'title' => 'Owleto Commission',
+                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'delivery_fee',
                 'title' => 'Delivery Fee',
+                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'vendor_payment',
