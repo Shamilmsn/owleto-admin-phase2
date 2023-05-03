@@ -101,6 +101,16 @@
     </div>
  @endif
 
+    <div class="form-group row ">
+        {!! Form::label('is_active', 'is active?',['class' => 'col-3 control-label text-right']) !!}
+        <div class="checkbox icheck">
+            <label class="col-9 ml-2 form-check-inline">
+                {!! Form::hidden('is_active', 0) !!}
+                {!! Form::checkbox('is_active', 1, null) !!}
+            </label>
+        </div>
+    </div>
+
 </div>
 @if($customFields)
 <div class="clearfix"></div>
