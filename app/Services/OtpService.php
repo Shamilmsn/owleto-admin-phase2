@@ -38,23 +38,23 @@ class OtpService
                 ]);
             }
 
-//                   Sms::driver('log')
-//                    ->content('Hello, Please login at Owleto with this OTP : '.$otp->code)
-//                    ->to($phone)
-//                    ->send();
-//
-//            $sid = config('services.twilio.twilio_sid');
-//            $token = config('services.twilio.twilio_token');
-//            $messagingServiceSid = config('services.twilio.twilio_msg_service_id');
-//            $twilio = new Client($sid, $token);
-//
-//            $message = $twilio->messages
-//                ->create($phoneNumber,
-//                    array(
-//                        "messagingServiceSid" => $messagingServiceSid,
-//                        "body" => "Hello, Please login at Owleto with this OTP : ".$otp->code
-//                    )
-//                );
+                   Sms::driver('log')
+                    ->content('Hello, Please login at Owleto with this OTP : '.$otp->code)
+                    ->to($phone)
+                    ->send();
+
+            $sid = config('services.twilio.twilio_sid');
+            $token = config('services.twilio.twilio_token');
+            $messagingServiceSid = config('services.twilio.twilio_msg_service_id');
+            $twilio = new Client($sid, $token);
+
+            $message = $twilio->messages
+                ->create($phoneNumber,
+                    array(
+                        "messagingServiceSid" => $messagingServiceSid,
+                        "body" => "Hello, Please login at Owleto with this OTP : ".$otp->code
+                    )
+                );
         }
 
         return ['token' => $otp->getToken()];
@@ -68,9 +68,9 @@ class OtpService
         ]);
 
         $code = $request->input('code');
-        if($code == 12345){
-            return true;
-        }
+//        if($code == 12345){
+//            return true;
+//        }
         $otp = Otp::find(decrypt($request->input('token')));
 
         if (!$otp || ($otp->code != $code) || $otp->isExpired() || $otp->isVerified()) {
