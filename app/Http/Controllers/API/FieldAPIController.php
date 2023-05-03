@@ -43,7 +43,7 @@ class FieldAPIController extends Controller
         } catch (RepositoryException $e) {
             return $this->sendError($e->getMessage());
         }
-        $fields = $this->fieldRepository->all();
+        $fields = $this->fieldRepository->where('is_active', true)->get();
 
         return $this->sendResponse($fields->toArray(), 'Fields retrieved successfully');
     }

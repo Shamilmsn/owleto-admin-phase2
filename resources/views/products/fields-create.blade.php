@@ -101,11 +101,13 @@
             <div class="form-text text-muted">
                 {{ trans("lang.product_discount_price_help") }}
             </div>
-            <span class="text-black xs price-validation">Discount Price should be less than price</span>
+            <span class="text-danger d-none"
+                  id="discount_validation">Discount Price should be less than price</span>
         </div>
     </div>
 
     <!-- Tax Field -->
+    @if(request()->user()->hasRole('admin'))
     <div class="form-group row ">
         {!! Form::label('tax', 'Tax*', ['class' => 'col-3 control-label text-right']) !!}
         <div class="col-9">
@@ -115,6 +117,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Description Field -->
     <div class="form-group row ">
@@ -210,6 +213,7 @@
     </div>
 
     <!-- owleto_commission_percentage Field -->
+    @if(request()->user()->hasRole('admin'))
     <div class="form-group row ">
         {!! Form::label('owleto_commission_percentage', 'Owleto Commission Percentage*', ['class' => 'col-3 control-label text-right']) !!}
         <div class="col-9">
@@ -219,6 +223,7 @@
             </div>
         </div>
     </div>
+    @endif
     <div class="form-group row " id="food-type-div">
         {!! Form::label('food_type', trans("lang.food_type"), ['class' => 'col-3 control-label text-right']) !!}
         <div class="col-9">
@@ -715,6 +720,17 @@
             $.validator.addMethod('positiveNumber', function (value, element) {
                 return Number(value) >= 0
             }, 'Negative Number is not allowed.');
+
+            $("#discount_price").on( "change", function() {
+                var price = $("#price").val();
+                var discount_price = $("#discount_price").val();
+                if(discount_price>price){
+                    $("#discount_validation").removeClass('d-none')
+                }
+                else {
+                    $("#discount_validation").addClass('d-none')
+                }
+            } );
 
 
             $('#form-create').validate({

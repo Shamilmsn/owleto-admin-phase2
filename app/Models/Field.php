@@ -29,7 +29,8 @@ class Field extends Model implements HasMedia
 
     public $fillable = [
         'name',
-        'description'
+        'description',
+        'is_active'
     ];
 
     /**
