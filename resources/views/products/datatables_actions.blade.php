@@ -7,20 +7,21 @@
         @endif
 
     @endif
-
-        @if($product->featured == 1)
-            <a data-toggle="tooltip" title="remove from featured"
-               href="#" data-id="{{$product->id}}"
-               class='btn btn-link remove-from-featured text-success'>
-                <i class="fa fa-check"></i>
-            </a>
-        @else
-            <a data-toggle="tooltip" data-placement="bottom"
-               title="add to featured" href="#" data-id="{{$product->id}}"
-               class='btn  add-to-featured
-                btn-link text-danger'>
-                <i class="fa fa-times"></i>
-            </a>
+        @if(request()->user()->hasRole('admin'))
+            @if($product->featured == 1)
+                <a data-toggle="tooltip" title="remove from featured"
+                   href="#" data-id="{{$product->id}}"
+                   class='btn btn-link remove-from-featured text-success'>
+                    <i class="fa fa-check"></i>
+                </a>
+            @else
+                <a data-toggle="tooltip" data-placement="bottom"
+                   title="add to featured" href="#" data-id="{{$product->id}}"
+                   class='btn  add-to-featured
+                    btn-link text-danger'>
+                    <i class="fa fa-times"></i>
+                </a>
+            @endif
         @endif
 
   @can('products.show')
@@ -69,7 +70,7 @@
 {{--            </a>--}}
 {{--        @endcan--}}
 
-
+        @if(request()->user()->hasRole('admin'))
   @can('products.destroy')
 {!! Form::open(['route' => ['products.destroy', $product->id], 'method' => 'delete']) !!}
   {!! Form::button('<i class="fa fa-trash"></i>', [
@@ -79,4 +80,5 @@
   ]) !!}
 {!! Form::close() !!}
   @endcan
+            @endif
 </div>
