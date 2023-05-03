@@ -106,10 +106,11 @@ class ProductAPIController extends Controller
                     ->where('is_enabled', true)
                     ->where('deliverable', 1)
                     ->where('is_approved', true)
-//                    ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
+                    ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
                     ->Where(function ($query) {
                         $query->where('is_variant_display_product', true)
-                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
+//                            ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
+                        ->orWhere('product_type',Product::STANDARD_PRODUCT);
                     })
                     ->orderByDesc('id')
                     ->get();
@@ -141,29 +142,39 @@ class ProductAPIController extends Controller
 
             $products = $this->productRepository->pushCriteria(new ProductsOfCategoriesCriteria($request));
 
-            info($request);
-
-//            $products = $this->productRepository->with('market')
-//                ->where('is_enabled', true)
-//                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
-//                ->where('deliverable', 1)
-//                ->where('is_approved', true)
-//                ->Where(function ($query) {
-//                    $query->where('is_variant_display_product', true);
-//                });
-
             $products = $this->productRepository
                 ->where('is_enabled', true)
                 ->where('deliverable', 1)
                 ->where('is_approved', true)
                 ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
                 ->Where(function ($query) {
-                    $query->where('is_variant_display_product', true);
-//                        ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
+                    $query->where('is_variant_display_product', true)
+                            ->orWhere('product_type',Product::STANDARD_PRODUCT);
                 });
 
 
-//            info($products->get());
+//            $products = $this->productRepository->with('market')
+//                ->where('is_enabled', true)
+////                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
+//                ->where('deliverable', 1)
+//                ->where('is_approved', true)
+//                ->Where(function ($query) {
+//                    $query->where('is_variant_display_product', true)
+//                        ->orWhere('product_type',Product::STANDARD_PRODUCT);
+//                });
+
+//            $products = $this->productRepository
+//                ->where('is_enabled', true)
+//                ->where('deliverable', 1)
+//                ->where('is_approved', true)
+//                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
+//                ->Where(function ($query) {
+//                    $query->where('is_variant_display_product', true);
+////                        ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
+//                });
+
+            info("here the starter");
+            info($products->get());
 
             if ($request->search_name) {
                 $products = $products->where('base_name', 'like', '%' . $request->search_name . '%')
@@ -172,12 +183,7 @@ class ProductAPIController extends Controller
             }
 //
             if ($request->sector_id) {
-                info("this is the show");
-
                 $products = $products->where('sector_id', $request->sector_id);
-
-//
-//                $products = $products->where('sector_id', $request->sector_id);
             }
 
             if ($request->market_id) {
