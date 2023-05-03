@@ -315,17 +315,6 @@
         </div>
     </div>
 
-    <div class="form-group row ">
-        {!! Form::label('is_variant_display_product', 'display product?',
-            ['class' => 'col-3 control-label text-right']) !!}
-        <div class="checkbox icheck">
-            <label class="col-9 ml-2 form-check-inline">
-                {!! Form::hidden('is_variant_display_product', 0) !!}
-                {!! Form::checkbox('is_variant_display_product', 1, null) !!}
-            </label>
-        </div>
-    </div>
-
     <!-- 'Boolean is enabled Field' -->
     <div class="form-group row ">
         {!! Form::label('is_enabled', trans("lang.is_enabled"),['class' => 'col-3 control-label text-right']) !!}
