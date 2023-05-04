@@ -118,8 +118,7 @@ class SlotedDeliveryOrderDataTable extends DataTable
                 return $order->sub_total - $order->owleto_commission_amount;
             })
             ->addColumn('checkbox', function ($order) {
-                if($order->order_status_id == OrderStatus::STATUS_DELIVERED
-                    || !$order->picked_or_delivered) {
+                if($order->order_status_id == OrderStatus::STATUS_DELIVERED ) {
                     return '';
                 }
                 return '<input class="ids-all-select" type="checkbox" name="ids[]" 
