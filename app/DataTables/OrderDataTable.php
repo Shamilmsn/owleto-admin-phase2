@@ -161,7 +161,8 @@ class OrderDataTable extends DataTable
                         $q->where('type', Order::PRODUCT_TYPE)
                             ->whereIn("payment_method_id",[ PaymentMethod::PAYMENT_METHOD_COD, PaymentMethod::PAYMENT_METHOD_WALLET]);
                     });
-                })->latest();
+                })->orderBy('orders.created_at', 'desc')
+                ->select('orders.*');
 
         } else if (auth()->user()->hasRole('vendor_owner')) {
 
@@ -231,8 +232,6 @@ class OrderDataTable extends DataTable
                 ->orderBy('orders.created_at', 'desc')
                 ->select('orders.*');
         }
-        info('$query');
-        info($query);
 
         return $query;
     }
