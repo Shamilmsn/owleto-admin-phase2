@@ -228,7 +228,8 @@ class OrderDataTable extends DataTable
                 ->with("orderStatus")
                 ->with('payment')
                 ->where('type', Order::PRODUCT_TYPE)
-                ->orderBy('orders.created_at', 'desc');
+                ->orderBy('orders.created_at', 'desc')
+                ->select('orders.*');
         }
         info('$query');
         info($query);
