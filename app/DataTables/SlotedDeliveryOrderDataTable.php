@@ -173,7 +173,7 @@ class SlotedDeliveryOrderDataTable extends DataTable
             ->where('order_status_id', '!=', OrderStatus::STATUS_CANCELED)
             ->where('order_status_id', '!=', OrderStatus::STATUS_DELIVERED)
             ->whereHas('deliveryType', function ($query){
-                $query->where('is_sloted', true);
+                $query->where('isTimeType', true);
             })
             ->where('picked_or_delivered', Order::PICKED);
 

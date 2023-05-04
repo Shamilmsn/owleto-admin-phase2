@@ -175,7 +175,7 @@ class SlotedPickUpOrderDataTable extends DataTable
             ->where('order_status_id', '!=', OrderStatus::STATUS_DELIVERED)
             ->whereNull('driver_id')
             ->whereHas('deliveryType', function ($query){
-                $query->where('is_sloted', true);
+                $query->where('isTimeType', true);
             });
 
         if (auth()->user()->hasRole('vendor_owner')) {
