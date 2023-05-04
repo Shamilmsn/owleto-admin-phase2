@@ -289,7 +289,7 @@ class OrderDataTable extends DataTable
                 'data' => 'driver_id',
                 'name' => 'driver_id',
                 'title' => 'Driver',
-                'visible' => request()->user()->hasRole('admin') ? true : false,
+//                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'is_collected_from_driver',
@@ -299,17 +299,17 @@ class OrderDataTable extends DataTable
             [
                 'data' => 'driver_commission_amount',
                 'title' => 'Driver Commission',
-                'visible' => request()->user()->hasRole('admin') ? true : false,
+//                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'owleto_commission_amount',
                 'title' => 'Owleto Commission',
-                'visible' => request()->user()->hasRole('admin') ? true : false,
+//                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'delivery_fee',
                 'title' => 'Delivery Fee',
-                'visible' => request()->user()->hasRole('admin') ? true : false,
+//                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'vendor_payment',
