@@ -85,7 +85,7 @@ class OrderDataTable extends DataTable
                 return getDateColumn($order, 'updated_at');
             })
             ->editColumn('order_status_id', function ($order) {
-                return $order->orderStatus->status;
+                return optional($order->orderStatus)->status;
             })
             ->editColumn('delivery_type.name', function ($order) {
                 if($order->deliveryType != NULL) {
