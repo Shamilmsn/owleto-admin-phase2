@@ -4,16 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bc0e6a62-536d-447d-99d4-4fff87dded3e" name="Changes" comment="">
+    <list default="true" id="bc0e6a62-536d-447d-99d4-4fff87dded3e" name="Changes" comment="delivery Time - OA-20">
       <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/DataTables/DeliveryTypeDataTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/DataTables/DeliveryTypeDataTable.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/DeliveryTypeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/DeliveryTypeController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Models/DeliveryType.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Models/DeliveryType.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/delivery_types/datatables_actions.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/delivery_types/datatables_actions.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/delivery_types/fields.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/delivery_types/fields.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/delivery_types/index.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/delivery_types/index.blade.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +20,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -358,14 +351,7 @@
       <workItem from="1680516009625" duration="3952000" />
       <workItem from="1680672250798" duration="5552000" />
       <workItem from="1680677845107" duration="306000" />
-      <workItem from="1682313667360" duration="7350000" />
-    </task>
-    <task id="LOCAL-00248" summary="edit page changes&#10;&#10;pre select the value">
-      <created>1678688394519</created>
-      <option name="number" value="00248" />
-      <option name="presentableId" value="LOCAL-00248" />
-      <option name="project" value="LOCAL" />
-      <updated>1678688394519</updated>
+      <workItem from="1682313667360" duration="8131000" />
     </task>
     <task id="LOCAL-00249" summary="category changes">
       <created>1678689726178</created>
@@ -703,7 +689,14 @@
       <option name="project" value="LOCAL" />
       <updated>1680674814321</updated>
     </task>
-    <option name="localTasksCounter" value="297" />
+    <task id="LOCAL-00297" summary="delivery Time - OA-20">
+      <created>1682323720208</created>
+      <option name="number" value="00297" />
+      <option name="presentableId" value="LOCAL-00297" />
+      <option name="project" value="LOCAL" />
+      <updated>1682323720208</updated>
+    </task>
+    <option name="localTasksCounter" value="298" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -770,7 +763,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="temporary request" />
     <MESSAGE value="order controller notification changes&#10;&#10;-&gt; if notification restrict only one time going" />
     <MESSAGE value="assign cron job" />
     <MESSAGE value="order controller" />
@@ -795,6 +787,7 @@
     <MESSAGE value="audio description" />
     <MESSAGE value="notification bug fixing" />
     <MESSAGE value="assign driver" />
-    <option name="LAST_COMMIT_MESSAGE" value="assign driver" />
+    <MESSAGE value="delivery Time - OA-20" />
+    <option name="LAST_COMMIT_MESSAGE" value="delivery Time - OA-20" />
   </component>
 </project>
