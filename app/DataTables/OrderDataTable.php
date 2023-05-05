@@ -85,7 +85,7 @@ class OrderDataTable extends DataTable
                 return getDateColumn($order, 'updated_at');
             })
             ->editColumn('order_status_id', function ($order) {
-                return $order->orderStatus->status;
+                return optional($order->orderStatus)->status;
             })
             ->editColumn('delivery_type.name', function ($order) {
                 if($order->deliveryType != NULL) {
@@ -146,7 +146,7 @@ class OrderDataTable extends DataTable
     {
         if (auth()->user()->hasRole('admin')) {
 
-            return $model->newQuery()
+            $query = $model->newQuery()
                 ->with('deliveryType')
                 ->with("user")
                 ->with("orderStatus")
@@ -161,7 +161,8 @@ class OrderDataTable extends DataTable
                         $q->where('type', Order::PRODUCT_TYPE)
                             ->whereIn("payment_method_id",[ PaymentMethod::PAYMENT_METHOD_COD, PaymentMethod::PAYMENT_METHOD_WALLET]);
                     });
-                })->latest();
+                })->orderBy('orders.created_at', 'desc')
+                ->select('orders.*');
 
         } else if (auth()->user()->hasRole('vendor_owner')) {
 
@@ -169,7 +170,7 @@ class OrderDataTable extends DataTable
                 $query->where('user_id', Auth::id());
             })->pluck('id');
 
-            return $model->newQuery()->with("user")
+            $query = $model->newQuery()->with("user")
                 ->with("orderStatus")
                 ->with('payment')
                 ->with("market.field")
@@ -192,7 +193,7 @@ class OrderDataTable extends DataTable
 
         } else if (auth()->user()->hasRole('client')) {
 
-            return $model->newQuery()->with("user")->with("orderStatus")
+            $query = $model->newQuery()->with("user")->with("orderStatus")
                 ->with('payment')->with("market.field")
                 ->where(function ($query) {
                     $query->where(function ($q) {
@@ -207,7 +208,7 @@ class OrderDataTable extends DataTable
                 ->orderBy('orders.created_at', 'desc')
                 ->select('orders.*');
         } else if (auth()->user()->hasRole('driver')) {
-            return $model->newQuery()->with("user")->with("orderStatus")->with('payment')
+            $query = $model->newQuery()->with("user")->with("orderStatus")->with('payment')
                 ->where(function ($query) {
                     $query->where(function ($q) {
                             $q->where('type', Order::PRODUCT_TYPE)
@@ -222,14 +223,17 @@ class OrderDataTable extends DataTable
                 ->select('orders.*');
         }
         else {
-            return $model->newQuery()
+            $query = $model->newQuery()
                 ->with("user"
                 )->with("market.field")
                 ->with("orderStatus")
                 ->with('payment')
                 ->where('type', Order::PRODUCT_TYPE)
-                ->orderBy('orders.created_at', 'desc');
+                ->orderBy('orders.created_at', 'desc')
+                ->select('orders.*');
         }
+
+        return $query;
     }
 
     /**
@@ -289,6 +293,7 @@ class OrderDataTable extends DataTable
                 'data' => 'driver_id',
                 'name' => 'driver_id',
                 'title' => 'Driver',
+//                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'is_collected_from_driver',
@@ -298,14 +303,17 @@ class OrderDataTable extends DataTable
             [
                 'data' => 'driver_commission_amount',
                 'title' => 'Driver Commission',
+//                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'owleto_commission_amount',
                 'title' => 'Owleto Commission',
+//                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'delivery_fee',
                 'title' => 'Delivery Fee',
+//                'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
                 'data' => 'vendor_payment',

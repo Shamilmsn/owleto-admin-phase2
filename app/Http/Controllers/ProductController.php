@@ -179,6 +179,7 @@ class ProductController extends Controller
                 $product->product_type = Product::VARIANT_BASE_PRODUCT;
             } else {
                 $product->product_type = Product::STANDARD_PRODUCT;
+                $product->is_variant_display_product = 1;
             }
             $owletoCommissionPercent = $request->input('owleto_commission_percentage');
             $price = $request->input('price');
@@ -223,11 +224,9 @@ class ProductController extends Controller
                         $variantProduct = new Product();
 
                         if ($request->is_variant_display_product == 1) {
-//                            if ( $key == 0 ) {
                             if ($key == 0) {
                                 $variantProduct->is_variant_display_product = 1;
                             }
-//                            }
                         } else {
                             $variantProduct->is_variant_display_product = 1;
                         }
@@ -258,9 +257,11 @@ class ProductController extends Controller
                         $price = $variantProductPrice;
 
                         if ($owletoCommissionPercent) {
-                            $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
+                            $owletoCommissionAmount = (float) $owletoCommissionPercent;
+                            $owletoCommissionAmount = $owletoCommissionAmount/ 100 * $price;
                             $variantProduct->owleto_commission_amount = round($owletoCommissionAmount, 2);
                         }
+
                         $variantProduct->save();
                         if ($request->input('scheduled_delivery') == 1) {
                             $variantProduct->scheduled_delivery = $request->input('scheduled_delivery');
@@ -832,6 +833,7 @@ class ProductController extends Controller
 
     public function addToFeatured(Request $request)
     {
+        info($request->product_id);
         $product = Product::findOrFail($request->product_id);
         $product->featured = true;
         $product->save();

@@ -58,6 +58,9 @@ class AssignDriver extends Command
             ->whereIn('order_status_id',[Order::STATUS_RECEIVED, Order::STATUS_PREPARING, Order::STATUS_READY])
             ->whereIn('type', [Order::PRODUCT_TYPE, Order::ORDER_REQUEST_TYPE])
             ->where('is_order_approved', true)
+            ->whereHas('deliveryType', function ($query) {
+                $query->where('isTimeType', 0);
+            })
             ->whereNull('driver_id')
             ->get();
 

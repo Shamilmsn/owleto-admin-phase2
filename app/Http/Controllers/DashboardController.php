@@ -15,6 +15,7 @@ use App\Repositories\PaymentRepository;
 use App\Repositories\MarketRepository;
 use App\Repositories\ProductOrderRepository;
 use App\Repositories\UserRepository;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -98,7 +99,8 @@ class DashboardController extends Controller
         $totalDeliveryFee = Order::where('payment_status', 'SUCCESS')
             ->sum('delivery_fee');
 
-        $earning = ($pickupOrderEarnings + $orderEarnings + $packageEarnings) + $totalDeliveryFee;
+//        $earning = ($pickupOrderEarnings + $orderEarnings + $packageEarnings) + $totalDeliveryFee;
+        $earning = $this->orderRepository->sum('owleto_commission_amount');
 
 
         $payments = [];
@@ -116,8 +118,27 @@ class DashboardController extends Controller
                 });
         }
 
-        $labels = array_keys($payments->toArray());
-        $data = array_values($payments->toArray());
+        $orders = [];
+        if (!empty($this->orderRepository)) {
+
+            $orders = $this->orderRepository
+//                ->whereHas('order.market', function ($query) use($cityId) {
+//                    $query->where('city_id', $cityId);
+//                })
+                ->orderBy("created_at", 'asc')->all()->map(function ($row) {
+                    $row['month'] = Carbon::parse($row['created_at'])->format('M');
+                    return $row;
+                })->groupBy('month')->map(function ($row) {
+                    return $row->sum('owleto_commission_amount');
+                });
+        }
+
+
+//        $labels = array_keys($payments->toArray());
+//        $data = array_values($payments->toArray());
+
+        $labels = array_keys($orders->toArray());
+        $data = array_values($orders->toArray());
 
         $ajaxEarningUrl = route('payments.byMonth', ['api_token' => auth()->user()->api_token]);
 
@@ -149,6 +170,7 @@ class DashboardController extends Controller
         $sector['Total Delivery Fee'] = $totalDeliveryFee;
 
         return view('dashboard.index')
+            ->with("orders",$orders)
             ->with("ajaxEarningUrl", $ajaxEarningUrl)
             ->with("ordersCount", $ordersCount)
             ->with("marketsCount", $marketsCount)

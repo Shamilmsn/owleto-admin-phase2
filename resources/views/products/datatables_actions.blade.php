@@ -7,27 +7,34 @@
         @endif
 
     @endif
-
-        @if($product->featured == 1)
-            <a data-toggle="tooltip" title="remove from featured"
-               href="#" data-id="{{$product->id}}" class='btn btn-link remove-from-featured text-success'>
-                <i class="fa fa-check"></i>
-            </a>
-        @else
-            <a data-toggle="tooltip" data-placement="bottom"
-               title="add to featured" href="#" data-id="{{$product->id}}" class='btn  add-to-featured
-                btn-link text-danger'>
-                <i class="fa fa-times"></i>
-            </a>
+        @if(request()->user()->hasRole('admin'))
+            @if($product->featured == 1)
+                <a data-toggle="tooltip" title="remove from featured"
+                   href="#" data-id="{{$product->id}}"
+                   class='btn btn-link remove-from-featured text-success'>
+                    <i class="fa fa-check"></i>
+                </a>
+            @else
+                <a data-toggle="tooltip" data-placement="bottom"
+                   title="add to featured" href="#" data-id="{{$product->id}}"
+                   class='btn  add-to-featured
+                    btn-link text-danger'>
+                    <i class="fa fa-times"></i>
+                </a>
+            @endif
         @endif
 
   @can('products.show')
-  <a data-toggle="tooltip" data-placement="bottom" title="{{trans('lang.view_details')}}" href="{{ route('products.show', $product->id) }}" class='btn btn-link'>
+  <a data-toggle="tooltip" data-placement="bottom"
+     title="{{trans('lang.view_details')}}" href="{{ route('products.show', $product->id) }}"
+     class='btn btn-link'>
     <i class="fa fa-eye"></i>
   </a>
   @endcan
   @can('products.edit')
-  <a data-toggle="tooltip" data-placement="bottom" title="{{trans('lang.product_edit')}}" href="{{ route('products.edit', $product->id) }}" class='btn btn-link'>
+  <a data-toggle="tooltip" data-placement="bottom"
+     title="{{trans('lang.product_edit')}}"
+     href="{{ route('products.edit', $product->id) }}" class='btn btn-link'>
     <i class="fa fa-edit"></i>
   </a>
   @endcan
@@ -55,14 +62,23 @@
       @endif
     @endcan
 
+{{--        @can('products.destroy')--}}
+{{--            <a data-toggle="tooltip" data-placement="bottom"--}}
+{{--               title="delete"--}}
+{{--               href="{{ route('products.edit', $product->id) }}" class='btn btn-link text-danger'>--}}
+{{--                <i class="fa fa-trash"></i>--}}
+{{--            </a>--}}
+{{--        @endcan--}}
 
-{{--  @can('products.destroy')--}}
-{{--{!! Form::open(['route' => ['products.destroy', $product->id], 'method' => 'delete']) !!}--}}
-{{--  {!! Form::button('<i class="fa fa-trash"></i>', [--}}
-{{--  'type' => 'submit',--}}
-{{--  'class' => 'btn btn-link text-danger',--}}
-{{--  'onclick' => "return confirm('Are you sure?')"--}}
-{{--  ]) !!}--}}
-{{--{!! Form::close() !!}--}}
-{{--  @endcan--}}
+        @if(request()->user()->hasRole('admin'))
+  @can('products.destroy')
+{!! Form::open(['route' => ['products.destroy', $product->id], 'method' => 'delete']) !!}
+  {!! Form::button('<i class="fa fa-trash"></i>', [
+  'type' => 'submit',
+  'class' => 'btn btn-link text-danger',
+  'onclick' => "return confirm('Are you sure?')"
+  ]) !!}
+{!! Form::close() !!}
+  @endcan
+            @endif
 </div>

@@ -118,6 +118,7 @@
     </div>
 
     <!-- Tax Field -->
+    @if(request()->user()->hasRole('admin'))
     <div class="form-group row ">
         {!! Form::label('tax', 'Tax*', ['class' => 'col-3 control-label text-right']) !!}
         <div class="col-9">
@@ -127,6 +128,7 @@
             </div>
         </div>
     </div>
+    @endif
 
 
     <!-- Description Field -->
@@ -257,6 +259,7 @@
         </div>
     </div>
     <!-- owleto_commission_percentage Field -->
+    @if(request()->user()->hasRole('admin'))
     <div class="form-group row ">
         {!! Form::label('owleto_commission_percentage', 'Owleto Commission Percentage*', ['class' => 'col-3 control-label text-right']) !!}
         <div class="col-9">
@@ -266,6 +269,7 @@
             </div>
         </div>
     </div>
+    @endif
     <div class="form-group row" id="food-type-div">
         {!! Form::label('food_type', trans("lang.food_type"), ['class' => 'col-3 control-label text-right']) !!}
         <div class="col-9">
