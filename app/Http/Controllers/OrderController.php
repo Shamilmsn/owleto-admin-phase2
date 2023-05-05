@@ -641,10 +641,10 @@ OrderController extends Controller
         $driverId = $request->driver_id;
         $driver = Driver::where('user_id', $driverId)->first();
 
-        if (!$driver->available) {
-            Flash::error(__('Driver have already an order'));
-            return redirect(route('orders.index'));
-        }
+//        if (!$driver->available) {
+//            Flash::error(__('Driver have already an order'));
+//            return redirect(route('orders.index'));
+//        }
 
         if (!$driver) {
             Flash::error(__('Driver Not Found'));
