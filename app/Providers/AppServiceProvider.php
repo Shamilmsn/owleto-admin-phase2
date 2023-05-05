@@ -98,5 +98,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Cashier::ignoreMigrations();
         Stripe::setApiKey(Config::get('services.stripe.secret'));
+        if(env('FORCE_HTTPS')) {
+            $this->app['request']->server->set('HTTPS', true);
+        }
     }
 }
