@@ -35,7 +35,7 @@
                     @include('layouts.right_toolbar', compact('dataTable'))
                 </ul>
             </div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 @include('driver_transactions.table')
                 <div class="clearfix"></div>
             </div>

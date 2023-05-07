@@ -25,7 +25,7 @@
                     @include('layouts.right_toolbar', compact('dataTable'))
                 </ul>
             </div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
 {{--               <div class="d-flex justify-content-end">--}}
 {{--                   <div class="col-3">--}}
 {{--                       <input type="text" class="form-control" placeholder="Search here...." id="search">--}}

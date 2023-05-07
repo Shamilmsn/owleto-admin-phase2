@@ -36,7 +36,7 @@
                     @include('layouts.right_toolbar', compact('dataTable'))
                 </ul>
             </div>
-            <div class="card-body">
+            <div class="card-body table-responsive">
                 @include('pickup_delivery_orders.table')
                 <div class="clearfix"></div>
             </div>
