@@ -7,6 +7,8 @@
  *
  */
 
+use App\Models\Market;
+use Illuminate\Support\Facades\Auth;
 use InfyOm\Generator\Common\GeneratorField;
 use InfyOm\Generator\Utils\GeneratorFieldsInputUtil;
 use InfyOm\Generator\Utils\HTMLFieldGenerator;
@@ -676,4 +678,78 @@ function getMerchantRequestCount()
         ->get();
 
     return count($pendingDriverRequest);
+}
+
+function isMerchantHascription()
+{
+    if(Auth::user()->hasRole('admin')) {
+        return true;
+    }
+
+    $userMarkets = Market::query()
+        ->with('fields')
+        ->whereHas('users', function ($query) {
+            $query->where('user_id', Auth::id());
+        })->get();
+
+    if(count($userMarkets)<=0) {
+        return false;
+    }
+
+    $sectorIds = [];
+
+    foreach ($userMarkets as $userMarket) {
+        if(count($userMarket->fields) > 0){
+            foreach ($userMarket->fields as $field) {
+                   array_push($sectorIds, $field->id);
+            }
+        }
+    }
+
+    if(count($sectorIds)<=0) {
+        return false;
+    }
+
+    if (in_array(\App\Models\Field::FRESH_MILK, $sectorIds)) {
+       return true ;
+    } else {
+        return false ;
+    }
+}
+
+function isMerchantHasManualOrders()
+{
+    if(Auth::user()->hasRole('admin')) {
+        return true;
+    }
+
+    $userMarkets = Market::query()
+        ->with('fields')
+        ->whereHas('users', function ($query) {
+            $query->where('user_id', Auth::id());
+        })->get();
+
+    if(count($userMarkets)<=0) {
+        return false;
+    }
+
+    $sectorIds = [];
+
+    foreach ($userMarkets as $userMarket) {
+        if(count($userMarket->fields) > 0){
+            foreach ($userMarket->fields as $field) {
+                array_push($sectorIds, $field->id);
+            }
+        }
+    }
+
+    if(count($sectorIds)<=0) {
+        return false;
+    }
+    if (in_array(\App\Models\Field::GROCERY, $sectorIds) ||
+        in_array(\App\Models\Field::PHARMACY, $sectorIds)) {
+        return true ;
+    } else {
+        return false ;
+    }
 }

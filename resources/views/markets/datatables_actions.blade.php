@@ -5,11 +5,14 @@
   </a>
 {{--  @endcan--}}
 
-  @can('markets.edit')
-  <a data-toggle="tooltip" data-placement="bottom" title="{{trans('lang.market_edit')}}" href="{{ route('markets.edit', $id) }}" class='btn btn-link'>
-    <i class="fa fa-edit"></i>
-  </a>
-  @endcan
+  @if(request()->user()->hasRole('admin'))
+    @can('markets.edit')
+      <a data-toggle="tooltip" data-placement="bottom" title="{{trans('lang.market_edit')}}" href="{{ route('markets.edit', $id) }}" class='btn btn-link'>
+        <i class="fa fa-edit"></i>
+      </a>
+    @endcan
+  @endif
+
 
   @can('markets.destroy')
 {!! Form::open(['route' => ['markets.destroy', $id], 'method' => 'delete']) !!}

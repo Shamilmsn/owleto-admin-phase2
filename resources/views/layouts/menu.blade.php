@@ -212,29 +212,44 @@
                     </ul>
                 </li>
             @can('package-orders.index')
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::is('package-orders*') ? 'active' : '' }}" href="{!! route('package-orders.index') !!}">@if($icons)
-                            <i class="nav-icon fa fa-shopping-bag"></i>@endif<p>{{trans('lang.package_order_plural')}}</p></a>
-                </li>
-            @endcan
-            @can('order-request-orders.index')
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::is('order-request-orders*') ? 'active' : '' }}" href="{!! route('order-request-orders.index') !!}">@if($icons)
-                            <i class="nav-icon fa fa-shopping-bag"></i>@endif<p>{{trans('lang.order_request_order_plural')}}</p></a>
-                </li>
-            @endcan
-                @can('pickup-delivery-orders.index')
+                @if(isMerchantHascription())
                     <li class="nav-item">
-                        <a class="nav-link {{ Request::is('pickup-delivery-orders*') ? 'active' : '' }}" href="{!! route('pickup-delivery-orders.index') !!}">@if($icons)
-                                <i class="nav-icon fa fa-shopping-bag"></i>@endif<p>{{trans('lang.pickup_delivery_order_plural')}}</p></a>
+                        <a class="nav-link {{ Request::is('package-orders*') ? 'active' : '' }}"
+                           href="{!! route('package-orders.index') !!}">
+                            @if($icons)
+                                <i class="nav-icon fa fa-shopping-bag"></i>
+                            @endif
+                            <p>{{trans('lang.package_order_plural')}}</p></a>
                     </li>
-                @endcan
-                @can('todays-package-orders.index')
-                    <li class="nav-item">
-                        <a class="nav-link {{ Request::is('todays-package-orders*') ? 'active' : '' }}" href="{!! route('todays-package-orders.index') !!}">@if($icons)
-                                <i class="nav-icon fa fa-shopping-bag"></i>@endif<p>Today's package orders</p></a>
-                    </li>
-                @endcan
+                @endif
+            @endcan
+                @if(isMerchantHasManualOrders())
+                    @can('order-request-orders.index')
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('order-request-orders*') ? 'active' : '' }}"
+                               href="{!! route('order-request-orders.index') !!}">@if($icons)
+                                    <i class="nav-icon fa fa-shopping-bag"></i>@endif
+                                <p>{{trans('lang.order_request_order_plural')}}</p></a>
+                        </li>
+                    @endcan
+                @endif
+                @if(request()->user()->hasRole('admin'))
+                    @can('pickup-delivery-orders.index')
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('pickup-delivery-orders*') ? 'active' : '' }}" href="{!! route('pickup-delivery-orders.index') !!}">@if($icons)
+                                    <i class="nav-icon fa fa-shopping-bag"></i>@endif<p>{{trans('lang.pickup_delivery_order_plural')}}</p></a>
+                        </li>
+                    @endcan
+                @endif
+
+                @if(isMerchantHascription())
+{{--                    @can('todays-package-orders.index')--}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('todays-package-orders*') ? 'active' : '' }}" href="{!! route('todays-package-orders.index') !!}">@if($icons)
+                                    <i class="nav-icon fa fa-shopping-bag"></i>@endif<p>Today's package orders</p></a>
+                        </li>
+{{--                    @endcan--}}
+                @endif
 
             @can('orderStatuses.index')
                 <li class="nav-item">
@@ -402,13 +417,16 @@
                 </li>
             @endcan
 
-            @can('market-payout-requests.index')
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::is('market-payout-requests*') ? 'active' : '' }}" href="{!! route('market-payout-requests.index') !!}">
-                        @if($icons)<i class="nav-icon fa fa-dollar"></i>@endif<p>Vendor Payout Requests</p>
-                    </a>
-                </li>
-            @endcan
+            @if(request()->user()->hasRole('admin'))
+                @can('market-payout-requests.index')
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('market-payout-requests*') ? 'active' : '' }}" href="{!! route('market-payout-requests.index') !!}">
+                            @if($icons)<i class="nav-icon fa fa-dollar"></i>@endif<p>Vendor Payout Requests</p>
+                        </a>
+                    </li>
+                @endcan
+            @endif
+
 
             @can('driver_transactions.index')
                 <li class="nav-item">
