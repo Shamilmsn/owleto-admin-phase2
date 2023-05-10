@@ -58,7 +58,7 @@ class OtpService
                 );
         }
 
-        return ['token' => $otp->getToken(), 'code' => $otp->code];
+        return ['token' => $otp->getToken()];
     }
 
     public function verify(Request $request)
