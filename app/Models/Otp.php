@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class Otp extends Model
 {
@@ -28,7 +29,7 @@ class Otp extends Model
 
     public function getToken()
     {
-        return encrypt($this->id);
+       return Crypt::encryptString($this->id);
     }
 
     public function markAsVerified()

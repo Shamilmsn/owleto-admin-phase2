@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use App\Models\Otp;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -68,12 +69,13 @@ class OtpService
         ]);
 
         $code = $request->input('code');
+//        if($code == 12345){
+//            return true;
+//        }
 
-        info($code);
+        $decrypted = Crypt::decryptString($request->input('token'));
 
-        $otp = Otp::find(decrypt($request->input('token')));
-
-        info($otp);
+        $otp = Otp::find($decrypted);
 
         if (!$otp || ($otp->code != $code) || $otp->isExpired() || $otp->isVerified()) {
             return false;
