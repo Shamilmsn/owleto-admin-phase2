@@ -108,7 +108,7 @@ class OrderAPIController extends Controller
                         'price' => $productOrder->price,
                         'order_item_name' => $productOrder->product ? $productOrder->product->name : null,
                         'product_id' => $productOrder->product_id,
-                        'image' => $productOrder->product->media,
+                        'image' => isset($productOrder->product->media)?$productOrder->product->media:'',
                         'package_price' => null,
                         'addons' => $addons,
                         'order_image_url' => null,
