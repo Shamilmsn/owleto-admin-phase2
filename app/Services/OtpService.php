@@ -57,7 +57,7 @@ class OtpService
                 );
         }
 
-        return ['token' => $otp->getToken()];
+        return ['token' => $otp->getToken(), 'code' => $otp->code];
     }
 
     public function verify(Request $request)
@@ -68,10 +68,12 @@ class OtpService
         ]);
 
         $code = $request->input('code');
-//        if($code == 12345){
-//            return true;
-//        }
+
+        info($code);
+
         $otp = Otp::find(decrypt($request->input('token')));
+
+        info($otp);
 
         if (!$otp || ($otp->code != $code) || $otp->isExpired() || $otp->isVerified()) {
             return false;
