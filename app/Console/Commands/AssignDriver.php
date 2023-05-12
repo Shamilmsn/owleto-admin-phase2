@@ -55,7 +55,8 @@ class AssignDriver extends Command
     public function handle()
     {
         $orders = Order::where('delivery_type_id','=', DeliveryType::TYPE_EXPRESS)
-            ->whereIn('order_status_id',[Order::STATUS_RECEIVED, Order::STATUS_PREPARING, Order::STATUS_READY])
+            ->whereIn('order_status_id',[Order::STATUS_RECEIVED,
+                Order::STATUS_PREPARING, Order::STATUS_READY])
             ->whereIn('type', [Order::PRODUCT_TYPE, Order::ORDER_REQUEST_TYPE])
             ->where('is_order_approved', true)
             ->whereHas('deliveryType', function ($query) {
@@ -66,50 +67,55 @@ class AssignDriver extends Command
 
 
         foreach ($orders as $order){
+
             if($order->sector_id != Field::TAKEAWAY){
+                if($order->deliveryType && $order->deliveryType->isTimeType == 0) {
+                    $market = Market::where('id', $order->market_id)->first();
 
-                $market = Market::where('id', $order->market_id)->first();
+                    $latMarket = $market->latitude;
+                    $longMarket = $market->longitude;
 
-                $latMarket = $market->latitude;
-                $longMarket = $market->longitude;
+                    $references = $this->database->getReference($this->table)->getValue();
 
-                $references = $this->database->getReference($this->table)->getValue();
+                    foreach ($references as $reference){
 
-                foreach ($references as $reference){
+                        if (array_key_exists("user_id", $reference)){
 
-                    if (array_key_exists("user_id", $reference)){
+                            $currentDriverLatitude = $reference['latitude'];
+                            $currentDriverLongitude = $reference['longitude'];
 
-                        $currentDriverLatitude = $reference['latitude'];
-                        $currentDriverLongitude = $reference['longitude'];
+                            if(DriversCurrentLocation::getDriverCurrentLocations($latMarket, $longMarket, $currentDriverLatitude,
+                                    $currentDriverLongitude, "K") < 10) {
 
-                        if(DriversCurrentLocation::getDriverCurrentLocations($latMarket, $longMarket, $currentDriverLatitude,
-                                $currentDriverLongitude, "K") < 10) {
+                                $driver = Driver::where('available',1)->where('user_id',  $reference['user_id'])->first();
 
-                            $driver = Driver::where('available',1)->where('user_id',  $reference['user_id'])->first();
-
-                            if($driver){
-                                $driverId = $driver->id;
-                                DriversCurrentLocation::updateCurrentLocation($driverId,
-                                    $currentDriverLatitude, $currentDriverLongitude);
+                                if($driver){
+                                    $driverId = $driver->id;
+                                    DriversCurrentLocation::updateCurrentLocation($driverId,
+                                        $currentDriverLatitude, $currentDriverLongitude);
+                                }
                             }
                         }
+
                     }
 
-                }
+                    $driversCurrentLocations = DriversCurrentLocation::getAvailableDriver(
+                        $latMarket, $longMarket, $market
+                    );
 
-                $driversCurrentLocations = DriversCurrentLocation::getAvailableDriver($latMarket, $longMarket, $market);
-                if($driversCurrentLocations){
+                    if($driversCurrentLocations){
 
-                    $this->updateDriverToOrder($order, $driversCurrentLocations);
-                }
-                else{
+                        $this->updateDriverToOrder($order, $driversCurrentLocations);
+                    }
+                    else{
 
-                    if($order->created_at < Carbon::now()->subMinutes(3)){
-                        $driversCurrentLocations = DriversCurrentLocation::getAvailableDriver($latMarket, $longMarket, null);
+                        if($order->created_at < Carbon::now()->subMinutes(3)){
+                            $driversCurrentLocations = DriversCurrentLocation::getAvailableDriver($latMarket, $longMarket, null);
 
-                        if($driversCurrentLocations){
+                            if($driversCurrentLocations){
 
-                            $this->updateDriverToOrder($order, $driversCurrentLocations);
+                                $this->updateDriverToOrder($order, $driversCurrentLocations);
+                            }
                         }
                     }
                 }
