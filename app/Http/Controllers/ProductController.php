@@ -181,6 +181,7 @@ class ProductController extends Controller
                 $product->product_type = Product::STANDARD_PRODUCT;
                 $product->is_variant_display_product = 1;
             }
+
             $owletoCommissionPercent = $request->input('owleto_commission_percentage');
             $price = $request->input('price');
             if ($owletoCommissionPercent) {
@@ -223,15 +224,7 @@ class ProductController extends Controller
 
                         $variantProduct = new Product();
 
-                        if ($request->is_variant_display_product == 1) {
-                            if ($key == 0) {
-                                $variantProduct->is_variant_display_product = 1;
-                            }
-                        } else {
-                            $variantProduct->is_variant_display_product = 1;
-                        }
-
-
+                        $variantProduct->is_variant_display_product = 1;
                         $variantProduct->base_name = $request->input('base_name');
                         $variantProduct->variant_name = $variantNames[$index];
                         $variantProduct->price = $variantProductPrice;
