@@ -237,6 +237,7 @@ class ProductController extends Controller
                         $variantProduct->deliverable = $request->input('deliverable');
                         $variantProduct->market_id = $request->input('market_id');
                         $variantProduct->category_id = $request->input('category_id');
+                        $variantProduct->sub_category_id = $request->input('sub_category_id');
                         $variantProduct->is_base_product = Product::NOT_BASE_PRODUCT;
                         $variantProduct->product_type = Product::VARIANT_PRODUCT;
                         $variantProduct->parent_id = $parentID;
