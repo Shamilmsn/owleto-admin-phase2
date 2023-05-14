@@ -54,7 +54,8 @@ class AssignDriver extends Command
      */
     public function handle()
     {
-        $orders = Order::where('delivery_type_id','=', DeliveryType::TYPE_EXPRESS)
+        $orders = Order::with('deliveryType')
+            ->where('delivery_type_id','=', DeliveryType::TYPE_EXPRESS)
             ->whereIn('order_status_id',[Order::STATUS_RECEIVED,
                 Order::STATUS_PREPARING, Order::STATUS_READY])
             ->whereIn('type', [Order::PRODUCT_TYPE, Order::ORDER_REQUEST_TYPE])
