@@ -7,15 +7,16 @@
       </a>
   @endcan
 
-  @if(request()->user()->hasRole('admin'))
-      @can('orders.edit')
-          <a data-toggle="tooltip" data-placement="bottom"
-             title="{{trans('lang.order_edit')}}" href="{{ route('orders.edit', $order->id) }}"
-             class='btn btn-link'>
-            <i class="fa fa-edit"></i>
-          </a>
-      @endcan
-  @endif
+{{--  @if(request()->user()->hasRole('admin'))--}}
+{{--      @can('orders.edit')--}}
+{{--          <a data-toggle="tooltip" data-placement="bottom"--}}
+{{--             title="{{trans('lang.order_edit')}}"
+ href="{{ route('orders.edit', $order->id) }}"--}}
+{{--             class='btn btn-link'>--}}
+{{--            <i class="fa fa-edit"></i>--}}
+{{--          </a>--}}
+{{--      @endcan--}}
+{{--  @endif--}}
   @if ($order->payment_method_id == \App\Models\PaymentMethod::PAYMENT_METHOD_COD &&
                 $order->is_collected_from_driver == 0 &&
                 $order->order_status_id == \App\Models\OrderStatus::STATUS_DELIVERED)
