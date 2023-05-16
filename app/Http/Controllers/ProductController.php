@@ -503,7 +503,8 @@ class ProductController extends Controller
 
         }
 
-        $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->productRepository->model());
+        $customFields = $this->customFieldRepository->findByField(
+            'custom_field_model', $this->productRepository->model());
 
         try {
             $product->days()->detach();
@@ -523,13 +524,14 @@ class ProductController extends Controller
             }
             foreach (getCustomFieldsValues($customFields, $request) as $value) {
                 $product->customFieldsValues()
-                    ->updateOrCreate(['custom_field_id' => $value['custom_field_id']], $value);
+                    ->updateOrCreate([
+                        'custom_field_id' => $value['custom_field_id']
+                    ], $value);
             }
 
             $parentID = $product->id;
             $days = $request->input('days');
             $attributeIDs = $request->input('attributes');
-            $owletoCommissionAmount = null;
             $owletoCommissionPercent = $request->input('owleto_commission_percentage');
             $price = $request->input('price');
             if ($owletoCommissionPercent) {
@@ -538,10 +540,6 @@ class ProductController extends Controller
                 $product->updated_at = Carbon::now();
                 $product->save();
             }
-
-            $products = Product::where('parent_id', $product->id)->get();
-
-
 
             if ($product->product_type == Product::VARIANT_BASE_PRODUCT) {
 
@@ -558,9 +556,7 @@ class ProductController extends Controller
                         $product->is_variant_display_product = 1;
                     }
 
-
                     $product->base_name = $request->base_name;
-                    $product->description = $request->description;
                     $product->tax = $request->tax;
                     $product->capacity = $request->capacity;
                     $product->market_id = $request->market_id;
@@ -576,7 +572,6 @@ class ProductController extends Controller
                     $product->save();
                 }
             }
-
 
             $productAddons = ProductAddon::where('product_id', $id)->get();
             foreach ($productAddons as $productAddon) {
@@ -600,8 +595,6 @@ class ProductController extends Controller
                 }
             }
 
-            $baseProduct = ProductAttributeOption::where('base_product_id', $parentID)->first();
-
             if ($request->variant_product == Product::VARIANT_PRODUCT_AVAILABLE) {
                 $index = 0;
                 $variantProductPrices = $request->input('variant_product_price');
@@ -614,7 +607,6 @@ class ProductController extends Controller
                         $variantProduct->variant_name = $variantNames[$index];
                         $variantProduct->price = $variantProductPrice;
                         $variantProduct->discount_price = $variantProductDiscountPrices[$index];
-                        $variantProduct->description = $request->input('description');
                         $variantProduct->capacity = $request->input('capacity');
                         $variantProduct->package_items_count = $request->input('package_items_count');
                         $variantProduct->unit = $request->input('unit');
