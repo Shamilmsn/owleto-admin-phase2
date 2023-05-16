@@ -179,8 +179,9 @@ class ProductController extends Controller
                 $product->product_type = Product::VARIANT_BASE_PRODUCT;
             } else {
                 $product->product_type = Product::STANDARD_PRODUCT;
-                $product->is_variant_display_product = 1;
             }
+
+            $product->is_variant_display_product = $request->is_variant_display_product;
 
             $owletoCommissionPercent = $request->input('owleto_commission_percentage');
             $price = $request->input('price');
@@ -224,7 +225,10 @@ class ProductController extends Controller
 
                         $variantProduct = new Product();
 
-                        $variantProduct->is_variant_display_product = 1;
+                        if($key==0){
+                            $variantProduct->is_variant_display_product = $request->is_variant_display_product;
+                        }
+
                         $variantProduct->base_name = $request->input('base_name');
                         $variantProduct->variant_name = $variantNames[$index];
                         $variantProduct->price = $variantProductPrice;
@@ -471,6 +475,7 @@ class ProductController extends Controller
     public function update($id, Request $request)
     {
 
+//        return $request->is_variant_display_product;
         $sectors = [
             Field::RESTAURANT,
             Field::HOME_COOKED_FOOD,
@@ -509,11 +514,12 @@ class ProductController extends Controller
         try {
             $product->days()->detach();
             $product = $this->productRepository->update($input, $id);
+            $product->is_variant_display_product = $request->is_variant_display_product;
+
 
             if($product->variantProducts()->exists())
             {
                 $product->product_type = Product::VARIANT_BASE_PRODUCT;
-                $product->save();
             }
             if (isset($input['image']) && $input['image'] && is_array($input['image'])) {
                 foreach ($input['image'] as $fileUuid) {
@@ -538,22 +544,16 @@ class ProductController extends Controller
                 $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
                 $product->owleto_commission_amount = round($owletoCommissionAmount, 2);
                 $product->updated_at = Carbon::now();
-                $product->save();
             }
+            $product->save();
 
             if ($product->product_type == Product::VARIANT_BASE_PRODUCT) {
 
                 $products = Product::where('parent_id', $product->id)->get();
                 foreach ($products as $key => $product) {
 
-                    if ($request->filled('is_variant_display_product')) {
-                        if ($key == 0) {
-                            $product->is_variant_display_product = 1;
-                        } else {
-                            $product->is_variant_display_product = 0;
-                        }
-                    } else {
-                        $product->is_variant_display_product = 1;
+                    if($key==0){
+                        $product->is_variant_display_product = $request->is_variant_display_product;
                     }
 
                     $product->base_name = $request->base_name;

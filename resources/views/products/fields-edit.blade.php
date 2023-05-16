@@ -510,10 +510,16 @@
                     @endforeach
                 </div>
                 <div class="form-group row" >
-                    {!! Form::label('variant_product', 'Is don\'t display product?',['class' => 'col-3 control-label ']) !!}
+                    {!! Form::label('is_variant_display_product', 'Is don\'t display product?',['class' => 'col-3 control-label ']) !!}
 
                     <div class="pl-2">
-                        <input type="checkbox" class="icheckbox_flat-blue is_variant_display_product" name="is_variant_display_product"  @if($isDisplayProduct==1) checked @endif>
+                        <input name="is_variant_display_product" type="hidden"
+                               value="0" id="is_variant_display_product">
+                        <input class="is_variant_display_product icheckbox_flat-blue"
+                               name="is_variant_display_product" type="checkbox"
+                               @if($product->is_variant_display_product == 1)
+                                             checked
+                               @endif>
                     </div>
                 </div>
             @endif
