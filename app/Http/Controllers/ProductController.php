@@ -181,8 +181,8 @@ class ProductController extends Controller
                 $product->product_type = Product::STANDARD_PRODUCT;
             }
 
-            $product->is_variant_display_product = $request->is_variant_display_product;
-
+            $product->is_variant_display_product =
+                $request->is_variant_display_product == 0 ? 0 : 1;
             $owletoCommissionPercent = $request->input('owleto_commission_percentage');
             $price = $request->input('price');
             if ($owletoCommissionPercent) {
@@ -226,7 +226,8 @@ class ProductController extends Controller
                         $variantProduct = new Product();
 
                         if($key==0){
-                            $variantProduct->is_variant_display_product = $request->is_variant_display_product;
+                            $variantProduct->is_variant_display_product =
+                                $request->is_variant_display_product == 0 ? 0 : 1;
                         }
 
                         $variantProduct->base_name = $request->input('base_name');
@@ -474,8 +475,6 @@ class ProductController extends Controller
      */
     public function update($id, Request $request)
     {
-
-//        return $request->is_variant_display_product;
         $sectors = [
             Field::RESTAURANT,
             Field::HOME_COOKED_FOOD,
@@ -514,8 +513,6 @@ class ProductController extends Controller
         try {
             $product->days()->detach();
             $product = $this->productRepository->update($input, $id);
-            $product->is_variant_display_product = $request->is_variant_display_product;
-
 
             if($product->variantProducts()->exists())
             {
@@ -545,6 +542,8 @@ class ProductController extends Controller
                 $product->owleto_commission_amount = round($owletoCommissionAmount, 2);
                 $product->updated_at = Carbon::now();
             }
+
+            $product->is_variant_display_product = $request->is_variant_display_product == 0 ? 0 : 1;
             $product->save();
 
             if ($product->product_type == Product::VARIANT_BASE_PRODUCT) {
@@ -553,7 +552,7 @@ class ProductController extends Controller
                 foreach ($products as $key => $product) {
 
                     if($key==0){
-                        $product->is_variant_display_product = $request->is_variant_display_product;
+                        $product->is_variant_display_product = $request->is_variant_display_product == 0 ? 0 : 1;
                     }
 
                     $product->base_name = $request->base_name;
