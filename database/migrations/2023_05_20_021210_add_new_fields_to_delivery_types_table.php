@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIsSlotedToDeliveryTypesTable extends Migration
+class AddNewFieldsToDeliveryTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -17,6 +17,14 @@ class AddIsSlotedToDeliveryTypesTable extends Migration
             $table->boolean('is_sloted')
                 ->after('additional_amount')
                 ->default(false);
+
+            $table->time('start_at')
+                ->after('is_sloted')
+                ->nullable();
+
+            $table->time('end_at')
+                ->after('start_at')
+                ->nullable();
         });
     }
 
@@ -29,6 +37,8 @@ class AddIsSlotedToDeliveryTypesTable extends Migration
     {
         Schema::table('delivery_types', function (Blueprint $table) {
             $table->dropColumn('is_sloted');
+            $table->dropColumn('start_at');
+            $table->dropColumn('end_at');
         });
     }
 }

@@ -69,6 +69,11 @@ class DeliveryTypeController extends Controller
     public function store(CreateDeliveryTypeRequest $request)
     {
         $input = $request->all();
+
+        $input['is_sloted'] = $request->is_sloted ? 1 : 0;
+        $input['start_at'] = $request->is_sloted ? $request->start_at : null;
+        $input['end_at'] = $request->is_sloted ? $request->end_at : null;
+
         $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->deliveryTypeRepository->model());
         try {
             $deliveryType = $this->deliveryTypeRepository->create($input);
@@ -133,6 +138,10 @@ class DeliveryTypeController extends Controller
             return redirect(route('deliveryTypes.index'));
         }
         $input = $request->all();
+
+        $input['is_sloted'] = $request->is_sloted ? 1 : 0;
+        $input['start_at'] = $request->is_sloted ? $request->start_at : null;
+        $input['end_at'] = $request->is_sloted ? $request->end_at : null;
         $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->deliveryTypeRepository->model());
         try {
             $deliveryType = $this->deliveryTypeRepository->update($input, $id);

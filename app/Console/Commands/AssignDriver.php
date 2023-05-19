@@ -61,7 +61,7 @@ class AssignDriver extends Command
             ->whereIn('type', [Order::PRODUCT_TYPE, Order::ORDER_REQUEST_TYPE])
             ->where('is_order_approved', true)
             ->whereHas('deliveryType', function ($query) {
-                $query->where('isTimeType', 0);
+                $query->where('is_sloted', 0);
             })
             ->whereNull('driver_id')
             ->get();
@@ -87,7 +87,9 @@ class AssignDriver extends Command
                         if(DriversCurrentLocation::getDriverCurrentLocations($latMarket, $longMarket, $currentDriverLatitude,
                                 $currentDriverLongitude, "K") < 10) {
 
-                            $driver = Driver::where('available',1)->where('user_id',  $reference['user_id'])->first();
+                            $driver = Driver::where('available',1)
+                                ->where('user_id',  $reference['user_id'])
+                                ->first();
 
                             if($driver){
                                 $driverId = $driver->id;
