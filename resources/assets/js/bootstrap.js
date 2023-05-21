@@ -54,3 +54,26 @@ if (token) {
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     encrypted: true
 // });
+
+import Echo from 'laravel-echo';
+
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: import.meta.env.VITE_PUSHER_APP_KEY,
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER ?? 'mt1',
+    wsHost: window.location.hostname,
+    wsPort: 6001,
+    forceTLS: false,
+    enabledTransports: ['ws', 'wss'],
+    disableStats: true,
+});
+
+window.Echo.channel('order').listen('NewOrderEvent', (e) => {
+    console.log(e.pending_order_count);
+    document.getElementById('pending_order_count').innerText = e.pending_order_count;
+});
+

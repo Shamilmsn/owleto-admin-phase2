@@ -173,6 +173,8 @@
                             <i class="nav-icon fa fa-shopping-bag"></i>
                         @endif
                         <p>{{trans('lang.order_plural')}}</p>
+                            @if(getPendingOrdersCount()>0) <span class="badge badge-pill badge-success driver-request-badge" id="pending_order_count">{{ getPendingOrdersCount() }}</span>@endif
+
                     </a>
                 </li>
             @endcan

@@ -753,3 +753,8 @@ function isMerchantHasManualOrders()
         return false ;
     }
 }
+
+function getPendingOrdersCount()
+{
+    return \App\Models\Order::query()->where('order_status_id', \App\Models\Order::STATUS_RECEIVED)->count();
+}
