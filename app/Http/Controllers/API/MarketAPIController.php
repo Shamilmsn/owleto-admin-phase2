@@ -82,8 +82,6 @@ class MarketAPIController extends Controller
         $lat = $request->myLat;
         $lon = $request->myLon;
 
-        info($request->all());
-
         $markets = $this->marketRepository->pushCriteria(new RequestCriteria($request));
         $markets = $markets->pushCriteria(new LimitOffsetCriteria($request));
 
