@@ -2,7 +2,8 @@
 /public/storage
 /storage/*.key
 /vendor
-.env
+/.env
 /.idea
 composer.lock
 package-lock.json
+/.idea
