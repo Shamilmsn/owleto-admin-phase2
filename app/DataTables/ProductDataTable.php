@@ -12,6 +12,7 @@ namespace App\DataTables;
 use App\Models\CustomField;
 use App\Models\Product;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Services\DataTable;
 
@@ -167,15 +168,40 @@ class ProductDataTable extends DataTable
 
             ],
             [
-                'data' => 'capacity',
-                'title' => trans('lang.product_capacity'),
-
+                'data' => 'tax',
+                'title' => 'Tax Amount',
+                'visible' => Auth::user()->hasRole('admin')
             ],
-//            [
-//                'data' => 'featured',
-//                'title' => trans('lang.product_featured'),
-//
-//            ],
+            [
+                'data' => 'price_without_gst',
+                'title' => 'Price Exclude Tax',
+                'visible' => Auth::user()->hasRole('admin')
+            ],
+            [
+                'data' => 'tcs_amount',
+                'title' => 'TCS Amount',
+                'visible' => Auth::user()->hasRole('admin')
+            ],
+            [
+                'data' => 'tds_amount',
+                'title' => 'TDS Amount',
+                'visible' => Auth::user()->hasRole('admin')
+            ],
+            [
+                'data' => 'owleto_commission_amount',
+                'title' => 'Owleto Commission Amount',
+                'visible' => Auth::user()->hasRole('admin')
+            ],
+            [
+                'data' => 'eighty_percentage_of_commission_amount',
+                'title' => '18% of Commission Amount',
+                'visible' => Auth::user()->hasRole('admin')
+            ],
+            [
+                'data' => 'vendor_payment_amount',
+                'title' => 'Vendor Payment',
+                'visible' => Auth::user()->hasRole('admin')
+            ],
             [
                 'data' => 'market.name',
                 'title' => trans('lang.product_market_id'),
@@ -186,11 +212,6 @@ class ProductDataTable extends DataTable
                 'title' => trans('lang.product_category_id'),
 
             ],
-            [
-                'data' => 'updated_at',
-                'title' => trans('lang.product_updated_at'),
-                'searchable' => false,
-            ]
         ];
 
         $hasCustomField = in_array(Product::class, setting('custom_field_models', []));

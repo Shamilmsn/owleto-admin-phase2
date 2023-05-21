@@ -147,6 +147,9 @@ class Product extends Model implements HasMedia
 
     const VARIANT_PRODUCT_AVAILABLE = 1;
 
+    const TDS_PERCENTAGE = 1;
+    const TCS_PERCENTAGE = 1;
+
 
     /**
      * @param Media|null $media
