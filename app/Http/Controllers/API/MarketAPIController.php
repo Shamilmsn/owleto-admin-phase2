@@ -79,38 +79,34 @@ class MarketAPIController extends Controller
      */
     public function index(Request $request)
     {
-        $lat = $request->get('myLat');
-
-        $lon = $request->get('myLon');
+        $lat = $request->myLat;
+        $lon = $request->myLon;
 
         $markets = $this->marketRepository->pushCriteria(new RequestCriteria($request));
-        $markets = $this->marketRepository->pushCriteria(new LimitOffsetCriteria($request));
+        $markets = $markets->pushCriteria(new LimitOffsetCriteria($request));
 
-        $cities = City::all();
-
-        foreach ($cities as $city){
-
-            $userCity = City::select("cities.*"
-                ,DB::raw("6371 * acos(cos(radians(" . $lat . ")) 
+        if($lat && $lon) {
+            $cities = City::all();
+            foreach ($cities as $city){
+                $userCity = City::select("cities.*"
+                    ,DB::raw("6371 * acos(cos(radians(" . $lat . ")) 
                     * cos(radians(cities.center_latitude)) 
                     * cos(radians(cities.center_longitude) - radians(" . $lon . ")) 
                     + sin(radians(" .$lat. ")) 
                     * sin(radians(cities.center_latitude))) AS distance"))
-                ->having('distance', '<', $city->radius)
-                ->first();
-        }
+                    ->having('distance', '<', $city->radius)
+                    ->first();
+            }
 
-        $cityLatitude = $userCity->center_latitude ?? 0;
-        $cityLongitude = $userCity->center_longitude ?? 0;
-        $radius = $userCity->radius ?? 0;
+            $cityLatitude = $userCity->center_latitude ?? 0;
+            $cityLongitude = $userCity->center_longitude ?? 0;
+            $radius = $userCity->radius ?? 0;
 
-        $markets = $this->marketRepository->pushCriteria(new LocationCriteria($request, $cityLatitude, $cityLongitude, $radius));
+            $markets = $markets->pushCriteria(new LocationCriteria($request, $cityLatitude, $cityLongitude, $radius));
 
-        if ($request->has('popular')) {
-//            $markets =  $this->marketRepository->pushCriteria(new PopularCriteria($request));
-        }
-        else {
-            $markets = $this->marketRepository->pushCriteria(new NearCriteria($request, $cityLatitude, $cityLongitude));
+            if (empty($request->popular)) {
+                $markets = $markets->pushCriteria(new NearCriteria($request, $cityLatitude, $cityLongitude));
+            }
         }
 
         if($request->search ){
@@ -120,29 +116,19 @@ class MarketAPIController extends Controller
         }
 
         if ($request->sector_id) {
-
-            $field_id = $request->get('sector_id');
-
+            $field_id = $request->sector_id;
             $markets = $markets->where(function ($query) use ($field_id){
                 $query->whereHas('fields', function ($query) use ($field_id) {
                     $query->where('field_id', $field_id);
                 })->orWhere('primary_sector_id', $field_id);
             });
-
         }
 
-        if ($request->sector_id && $request->category_id) {
-
-            $field_id = $request->get('sector_id');
-
-            $markets = $markets->where(function ($query) use ($field_id){
-                $query->whereHas('fields', function ($query) use ($field_id) {
-                    $query->where('field_id', $field_id);
-                })->orWhere('primary_sector_id', $field_id);
-            })->whereHas('market_categories', function ($query) use ($request){
+        if ($request->category_id) {
+            $markets = $markets
+                ->whereHas('market_categories', function ($query) use ($request) {
                 $query->where('id', $request->category_id);
             });
-
         }
 
         $markets = $markets->get();
