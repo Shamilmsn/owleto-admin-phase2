@@ -646,7 +646,9 @@ class ProductController extends Controller
                         }
 
                         $mediaItem = $product->getMedia('image')->first();
-                        $mediaItem->copy($variantProduct, 'image');
+                        if ($mediaItem) {
+                            $mediaItem->copy($variantProduct, 'image');
+                        }
 
                         $option = 0;
                         foreach ($attributeIDs as $attributeID) {

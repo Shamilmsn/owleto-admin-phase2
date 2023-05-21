@@ -536,6 +536,18 @@
         <div style="flex: 50%;max-width: 50%;padding: 0 4px;" class="column variant-product-details d-none">
 
             <!-- Markets Field -->
+            @if( count($availableVariantProducts) == 0)
+                <div class="form-group row " >
+                    {!! Form::label('variant_product', 'Is don\'t display product?',['class' => 'col-3 control-label ']) !!}
+
+                    <div class="pl-2">
+                        <input name="is_variant_display_product" type="hidden"
+                               value="0" id="is_variant_display_product">
+                        <input class="is_variant_display_product icheckbox_flat-blue" name="is_variant_display_product" type="checkbox" value="1" >
+                    </div>
+                </div>
+            @endif
+
             <div class="form-group row ">
                 {!! Form::label('attributes[]', trans("lang.attribute_plural"),['class' => 'col-3 control-label text-right']) !!}
                 <div class="col" style="display: inline-flex">
