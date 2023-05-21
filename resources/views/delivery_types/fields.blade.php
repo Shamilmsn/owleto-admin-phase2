@@ -57,24 +57,24 @@
     }
   </script>
 <h5>Is Sloted?
-  <input type="checkbox" id="useTimeCheck" name="is_sloted" onclick="showTimeDivFun()" {{isset($deliveryType->is_sloted)?($deliveryType->is_sloted=='1'?'checked':''):''}}>
+  <input type="checkbox" id="useTimeCheck" name="isTimeType" onclick="showTimeDivFun()" {{isset($deliveryType->isTimeType)?($deliveryType->isTimeType=='1'?'checked':''):''}}>
 </h5>
 
 
-  <div id="timeDiv" style="display: {{isset($deliveryType->is_sloted)?($deliveryType->is_sloted=='1'?'block':'none'):'none'}}">
+  <div id="timeDiv" style="display: {{isset($deliveryType->isTimeType)?($deliveryType->isTimeType=='1'?'block':'none'):'none'}}">
   <hr/>
   <div class="form-group row ">
-    <label for="start_at" class="col-3 control-label text-right">Start At</label>
+    <label for="start_time" class="col-3 control-label text-right">Start At</label>
     <div class="col-9">
-      <input class="form-control" name="start_at" type="time" id="start_time" value="{{isset($deliveryType->start_at)?$deliveryType->start_at:''}}">
+      <input class="form-control" name="start_time" type="time" id="start_time" value="{{isset($deliveryType->start_time)?$deliveryType->start_time:''}}">
     </div>
   </div>
 
 
   <div class="form-group row ">
-    <label for="end_at" class="col-3 control-label text-right">End At</label>
+    <label for="end_time" class="col-3 control-label text-right">End At</label>
     <div class="col-9">
-      <input class="form-control"  name="end_at" type="time" id="end_time" value="{{isset($deliveryType->end_at)?$deliveryType->end_at:''}}">
+      <input class="form-control"  name="end_time" type="time" id="end_time" value="{{isset($deliveryType->end_time)?$deliveryType->end_time:''}}">
     </div>
   </div>
 
