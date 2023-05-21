@@ -604,6 +604,8 @@ class OrderAPIController extends Controller
 
         DB::commit();
 
+        event(new \App\Events\NewOrderEvent());
+
         return $this->sendResponse($response, 'Inserted Successfully');
     }
 
@@ -1118,6 +1120,8 @@ class OrderAPIController extends Controller
             return $this->sendError($e->getMessage());
         }
 
+        event(new \App\Events\NewOrderEvent());
+
         return $this->sendResponse($order->toArray(), __('lang.saved_successfully', ['operator' => __('lang.order')]));
     }
 
@@ -1579,6 +1583,8 @@ class OrderAPIController extends Controller
         }
 
         DB::commit();
+
+        event(new \App\Events\NewOrderEvent());
 
         return $this->sendResponse($response, __('lang.saved_successfully', ['operator' => __('lang.order')]));
     }

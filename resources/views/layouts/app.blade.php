@@ -279,5 +279,8 @@
     @stack('scripts')
 
     <script src="{{ asset('/vendor/datatables/buttons.server-side.js') }}"></script>
+{{--    <script src="{{ asset('js/app.js') }}"></script>--}}
+
+{{--    @vite('resources/assets/js/componentsss/app.js')--}}
 </body>
 </html>
