@@ -293,6 +293,7 @@ class ProductController extends Controller
                         $variantProduct->tax = $request->input('tax');
                         $variantProduct->is_refund_or_replace = $request->is_refund_or_replace;
                         $variantProduct->return_days = $request->return_days;
+                        $variantProduct->food_type = $request->food_type;
 
                         $owletoCommissionPercent = $request->owleto_commission_percentage;
 
