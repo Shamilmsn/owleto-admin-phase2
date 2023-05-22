@@ -722,9 +722,9 @@
                 return Number(value) >= 0
             }, 'Negative Number is not allowed.');
 
-            $("#discount_price").on( "change", function() {
-                var price = $("#price").val();
-                var discount_price = $("#discount_price").val();
+            $("#discount_price").on( "change keyup", function() {
+                var price = parseFloat($("#price").val());
+                var discount_price = parseFloat($("#discount_price").val());
                 if(discount_price>price){
                     $("#discount_validation").removeClass('d-none')
                 }
