@@ -202,7 +202,7 @@ class ProductController extends Controller
             $owletoCommissionPercent = $request->owleto_commission_percentage;
 
             if($owletoCommissionPercent) {
-                $price = $request->price;
+                $price = $request->discount_price > 0 ? $request->discount_price : $request->price;
                 $taxPercentage = $request->tax;
                 $tdsPercentage = Product::TDS_PERCENTAGE;
                 $tcsPercentage = Product::TCS_PERCENTAGE;
@@ -298,7 +298,8 @@ class ProductController extends Controller
                         $owletoCommissionPercent = $request->owleto_commission_percentage;
 
                         if($owletoCommissionPercent) {
-                            $price = $variantProductPrice;
+                            $price = $variantProductDiscountPrices[$index] > 0 ?
+                                $variantProductDiscountPrices[$index] : $variantProductPrice;
                             $taxPercentage = $request->tax;
                             $tdsPercentage = Product::TDS_PERCENTAGE;
                             $tcsPercentage = Product::TCS_PERCENTAGE;
@@ -620,7 +621,7 @@ class ProductController extends Controller
             $owletoCommissionPercent = $request->owleto_commission_percentage;
             if($owletoCommissionPercent) {
 
-                $price = $request->price;
+                $price = $request->discount_price > 0 ? $request->discount_price :  $request->price;
                 $taxPercentage = $request->tax;
                 $tdsPercentage = Product::TDS_PERCENTAGE;
                 $tcsPercentage = Product::TCS_PERCENTAGE;
