@@ -145,6 +145,7 @@ class ProductDataTable extends DataTable
             [
                 'data' => 'base_name',
                 'title' => trans('lang.product_name'),
+                'searchable' => true,
 
             ],
             [
