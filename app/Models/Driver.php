@@ -182,5 +182,10 @@ class Driver extends Model
             $driver->save();
         }
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'driver_id', 'user_id');
+    }
     
 }
