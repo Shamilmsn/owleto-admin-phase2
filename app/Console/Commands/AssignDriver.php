@@ -87,14 +87,16 @@ class AssignDriver extends Command
                         if(DriversCurrentLocation::getDriverCurrentLocations($latMarket, $longMarket, $currentDriverLatitude,
                                 $currentDriverLongitude, "K") < 10) {
 
-                            $driver = Driver::where('available',1)
+                            $drivers = Driver::where('available',1)
                                 ->where('user_id',  $reference['user_id'])
-                                ->first();
+                                ->get();
 
-                            if($driver){
-                                $driverId = $driver->id;
-                                DriversCurrentLocation::updateCurrentLocation($driverId,
-                                    $currentDriverLatitude, $currentDriverLongitude);
+                            if(count($drivers) > 0){
+                                foreach ($drivers as $driver) {
+                                    $driverId = $driver->id;
+                                    DriversCurrentLocation::updateCurrentLocation($driverId,
+                                        $currentDriverLatitude, $currentDriverLongitude);
+                                }
                             }
                         }
                     }
