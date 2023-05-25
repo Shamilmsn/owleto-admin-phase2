@@ -544,7 +544,6 @@ class ProductController extends Controller
      */
     public function update($id, Request $request)
     {
-        info($request);
         $rules = [
             'base_name' => 'required',
             'price' => 'required|numeric|min:0',
@@ -658,7 +657,6 @@ class ProductController extends Controller
 
                     if($key==0){
                         $product->is_variant_display_product = $request->is_variant_display_product == 0 ? 0 : 1;
-                        info($product->is_variant_display_product);
                     }
 
                     $product->base_name = $request->base_name;
@@ -927,7 +925,6 @@ class ProductController extends Controller
 
     public function addToFeatured(Request $request)
     {
-        info($request->product_id);
         $product = Product::findOrFail($request->product_id);
         $product->featured = true;
         $product->save();
