@@ -311,9 +311,6 @@ class ProductController extends Controller
 
                             $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
                             $eightyPercentageOfCommissionAmount = (18/100)*$owletoCommissionAmount;
-                            $product->owleto_commission_amount = $owletoCommissionAmount;
-                            $product->eighty_percentage_of_commission_amount =
-                                $eightyPercentageOfCommissionAmount;
 
                             $vendorPayment = $price-$owletoCommissionAmount-$tdsAmount-$tdsAmount-$eightyPercentageOfCommissionAmount;
                             $variantProduct->owleto_commission_percentage = $owletoCommissionPercent;
@@ -323,6 +320,8 @@ class ProductController extends Controller
                             $variantProduct->tcs_amount = $tcsAmount;
                             $variantProduct->tds_percentage = $tdsPercentage;
                             $variantProduct->tds_amount = $tdsAmount;
+                            $variantProduct->eighty_percentage_of_commission_amount =
+                                $eightyPercentageOfCommissionAmount;
                             $variantProduct->vendor_payment_amount = $vendorPayment;
                         }
 
