@@ -544,6 +544,7 @@ class ProductController extends Controller
      */
     public function update($id, Request $request)
     {
+        info($request);
         $rules = [
             'base_name' => 'required',
             'price' => 'required|numeric|min:0',
@@ -657,6 +658,7 @@ class ProductController extends Controller
 
                     if($key==0){
                         $product->is_variant_display_product = $request->is_variant_display_product == 0 ? 0 : 1;
+                        info($product->is_variant_display_product);
                     }
 
                     $product->base_name = $request->base_name;
@@ -727,6 +729,7 @@ class ProductController extends Controller
                         $variantProduct->owleto_commission_percentage = $owletoCommissionPercent;
                         $variantProduct->is_refund_or_replace = $request->is_refund_or_replace;
                         $variantProduct->return_days = $request->return_days;
+                        $variantProduct->is_variant_display_product = $request->is_variant_display_product == 0 ? 0 : 1;
                         $price = $variantProductPrice;
                         if ($owletoCommissionPercent) {
                             $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
