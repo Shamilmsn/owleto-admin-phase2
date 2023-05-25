@@ -727,7 +727,6 @@ class ProductController extends Controller
                         $variantProduct->owleto_commission_percentage = $owletoCommissionPercent;
                         $variantProduct->is_refund_or_replace = $request->is_refund_or_replace;
                         $variantProduct->return_days = $request->return_days;
-                        $variantProduct->is_variant_display_product = $request->is_variant_display_product == 0 ? 0 : 1;
                         $price = $variantProductPrice;
                         if ($owletoCommissionPercent) {
                             $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
