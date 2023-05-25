@@ -621,7 +621,9 @@ class ProductController extends Controller
             $owletoCommissionPercent = $request->owleto_commission_percentage;
             if($owletoCommissionPercent) {
 
-                $price = $request->discount_price > 0 ? $request->discount_price :  $request->price;
+                $price = $request->discount_price > 0
+                    ? $request->discount_price
+                    :  $request->price;
                 $taxPercentage = $request->tax;
                 $tdsPercentage = Product::TDS_PERCENTAGE;
                 $tcsPercentage = Product::TCS_PERCENTAGE;
@@ -648,6 +650,14 @@ class ProductController extends Controller
             }
 
             $product->is_variant_display_product = $request->is_variant_display_product == 0 ? 0 : 1;
+
+            if ($request->input('sector_id') != 1 || $product->sector_id != 1) {
+                $product->scheduled_delivery = false;
+            }
+
+            if(!request()->user()->hasRole('admin')){
+                $product->is_approved = false;
+            }
             $product->save();
 
             if ($product->product_type == Product::VARIANT_BASE_PRODUCT) {
@@ -672,6 +682,39 @@ class ProductController extends Controller
                     $product->is_refund_or_replace = $request->is_refund_or_replace;
                     $product->return_days = $request->return_days;
                     $product->food_type = $request['food_type'];
+
+                    $owletoCommissionPercent = $request->owleto_commission_percentage;
+
+                    if($owletoCommissionPercent) {
+                        $price = $product->discount_price > 0
+                            ? $product->discount_price
+                            :  $product->price;
+                        $taxPercentage = $request->tax;
+                        $tdsPercentage = Product::TDS_PERCENTAGE;
+                        $tcsPercentage = Product::TCS_PERCENTAGE;
+
+                        $priceExcludingtax = ($price / (100 + $taxPercentage)) * 100;
+
+                        $tdsAmount = ($tdsPercentage / 100) * $priceExcludingtax;
+                        $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
+                        $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
+                        $eightyPercentageOfCommissionAmount = (18 / 100) * $owletoCommissionAmount;
+                        $vendorPayment = $price - $owletoCommissionAmount - $tdsAmount - $tdsAmount - $eightyPercentageOfCommissionAmount;
+
+                        $product->price_without_gst = $priceExcludingtax;
+                        $product->tcs_percentage = $tcsPercentage;
+                        $product->tcs_amount = $tcsAmount;
+                        $product->tds_percentage = $tdsPercentage;
+                        $product->tds_amount = $tdsAmount;
+                        $product->owleto_commission_amount = $owletoCommissionAmount;
+                        $product->eighty_percentage_of_commission_amount =
+                            $eightyPercentageOfCommissionAmount;
+                        $product->vendor_payment_amount = $vendorPayment;
+                    }
+
+                    if(!request()->user()->hasRole('admin')){
+                        $product->is_approved = false;
+                    }
                     $product->save();
                 }
             }
@@ -724,15 +767,37 @@ class ProductController extends Controller
                         $variantProduct->sector_id = $request->input('sector_id');
                         $variantProduct->is_enabled = $request->input('is_enabled');
                         $variantProduct->tax = $request->input('tax');
-                        $variantProduct->owleto_commission_percentage = $owletoCommissionPercent;
                         $variantProduct->is_refund_or_replace = $request->is_refund_or_replace;
                         $variantProduct->return_days = $request->return_days;
-                        $price = $variantProductPrice;
-                        if ($owletoCommissionPercent) {
+                        $owletoCommissionPercent = $request->owleto_commission_percentage;
+
+                        if($owletoCommissionPercent) {
+                            $price = $variantProductDiscountPrices[$index] > 0
+                                ? $variantProductDiscountPrices[$index]
+                                :  $variantProductPrice;
+                            $taxPercentage = $request->tax;
+                            $tdsPercentage = Product::TDS_PERCENTAGE;
+                            $tcsPercentage = Product::TCS_PERCENTAGE;
+
+                            $priceExcludingtax = ($price / (100 + $taxPercentage)) * 100;
+
+                            $tdsAmount = ($tdsPercentage / 100) * $priceExcludingtax;
+                            $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
                             $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
-                            $variantProduct->owleto_commission_amount = round($owletoCommissionAmount, 2);
+                            $eightyPercentageOfCommissionAmount = (18 / 100) * $owletoCommissionAmount;
+                            $vendorPayment = $price - $owletoCommissionAmount - $tdsAmount - $tdsAmount - $eightyPercentageOfCommissionAmount;
+
+                            $variantProduct->price_without_gst = $priceExcludingtax;
+                            $variantProduct->tcs_percentage = $tcsPercentage;
+                            $variantProduct->tcs_amount = $tcsAmount;
+                            $variantProduct->tds_percentage = $tdsPercentage;
+                            $variantProduct->tds_amount = $tdsAmount;
+                            $variantProduct->owleto_commission_amount = $owletoCommissionAmount;
+                            $variantProduct->eighty_percentage_of_commission_amount =
+                                $eightyPercentageOfCommissionAmount;
+                            $variantProduct->vendor_payment_amount = $vendorPayment;
                         }
-                        $variantProduct->is_variant_display_product = $request->is_variant_display_product == 0 ? 0 : 1;
+
                         $variantProduct->save();
 
                         if ($request->input('scheduled_delivery') == 1) {
@@ -791,10 +856,6 @@ class ProductController extends Controller
             Flash::error($e->getMessage());
         }
 
-        if ($request->input('sector_id') != 1 || $product->sector_id != 1) {
-            $product->scheduled_delivery = false;
-            $product->save();
-        }
 
         Flash::success(__('lang.updated_successfully', ['operator' => __('lang.product')]));
 
