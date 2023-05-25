@@ -732,6 +732,7 @@ class ProductController extends Controller
                             $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
                             $variantProduct->owleto_commission_amount = round($owletoCommissionAmount, 2);
                         }
+                        $variantProduct->is_variant_display_product = $request->is_variant_display_product == 0 ? 0 : 1;
                         $variantProduct->save();
 
                         if ($request->input('scheduled_delivery') == 1) {
