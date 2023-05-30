@@ -76,6 +76,7 @@
            Request::is('optionGroups*') ||
            Request::is('productReviews*') ||
             Request::is('product-approvals*') ||
+              Request::is('flash-sales*') ||
              Request::is('nutrition*') ? 'menu-open' : '' }}">
         <a href="#" class="nav-link {{  Request::is('products*') ||
          Request::is('attributes*') ||
@@ -84,6 +85,7 @@
            Request::is('optionGroups*') ||
            Request::is('productReviews*') ||
            Request::is('product-approvals*') ||
+           Request::is('flash-sales*') ||
            Request::is('nutrition*') ? 'active' : '' }}"> @if($icons)
                 <i class="nav-icon fa fa-archive"></i>@endif
             <p>{{trans('lang.product_plural')}} <i class="right fa fa-angle-left"></i>
@@ -137,6 +139,17 @@
                     </a>
                 </li>
             @endcan
+                @can('flash-sales.index')
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('flash-sales*') ? 'active' : '' }}"
+                           href="{!! route('flash-sales.index') !!}">
+                            @if($icons)
+                                <i class="nav-icon fa fa-archive"></i>
+                            @endif
+                            <p>Flash Sales</p>
+                        </a>
+                    </li>
+                @endcan
         </ul>
     </li>
 @endcan
