@@ -247,6 +247,10 @@ Route::middleware('auth')->group(function () {
     Route::post('remove-from-featured-products', 'ProductController@removeFromFeatured');
     Route::resource('todays-package-orders', 'TodayPackageOrderController');
     Route::resource('return-requests', 'ReturnRequestsController');
+    Route::resource('product-approvals', 'ProductApprovalController');
+    Route::resource('flash-sales', 'FlashSaleController');
+    Route::get('flash-sales/{productId}/approve', 'FlashSaleController@approveFlashSale');
+    Route::get('flash-sales/{productId}/delete', 'FlashSaleController@removeFlashSale');
 });
 
 Route::get('privacy-policy', 'PrivacyPolicyController@index');
