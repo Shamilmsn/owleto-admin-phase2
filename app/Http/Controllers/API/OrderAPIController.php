@@ -52,6 +52,7 @@ use App\Repositories\UserRepository;
 use Flash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -181,11 +182,12 @@ class OrderAPIController extends Controller
     public function store(Request $request)
     {
         if (isset($request->payment_method_id)) {
+            $data = $request->all();
             if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_RAZORPAY) {
                 return $this->razorPay($request);
             }
             if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_COD) {
-                return $this->cashPayment($request);
+                return $this->cashPayment(collect($data));
             }
             if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_WALLET) {
                 return $this->walletTransaction($request);
@@ -609,7 +611,7 @@ class OrderAPIController extends Controller
         return $this->sendResponse($response, 'Inserted Successfully');
     }
 
-    private function cashPayment(Request $request)
+    private function cashPayment(Collection $request)
     {
         $input = $request->all();
 
@@ -1026,8 +1028,8 @@ class OrderAPIController extends Controller
 
             }
 
-            if ($request->addons) {
-                $ordeAddons = $request->addons;
+            if ($request->get('addons')) {
+                $ordeAddons = $request->get('addons');
                 foreach ($ordeAddons as $ordeAddon) {
                     $order->order_addons()->attach($order->id, ['order_id' => $order->id, 'product_addon_id' => $ordeAddon]);
                 }
@@ -1041,11 +1043,11 @@ class OrderAPIController extends Controller
             return $this->sendError($e->getMessage());
         }
 
-        if ($request->is_coupon_used == true) {
-            $coupon = Coupon::where('code', $request->coupon_code)->first();
+        if ($request->get('is_coupon_used') == true) {
+            $coupon = Coupon::where('code', $request->get('coupon_code'))->first();
 
             $order->is_coupon_used = true;
-            $order->coupon_code = $request->coupon_code;
+            $order->coupon_code = $request->get('coupon_code');
             $order->coupon_discount_amount = $coupon->discount;
             $order->save();
 
@@ -1055,10 +1057,10 @@ class OrderAPIController extends Controller
 
             $orderCoupon = new OrderCoupon();
 
-            $orderCoupon->user_id = $request->user_id;
+            $orderCoupon->user_id = $request->get('user_id');
             $orderCoupon->order_id = $order->id;
             $orderCoupon->coupon_id = $coupon->id;
-            $orderCoupon->coupon_redeemed_amount = $request->coupon_redeemed_amount;
+            $orderCoupon->coupon_redeemed_amount = $request->get('coupon_redeemed_amount');
 
             $isCouponAlreadyUsed = OrderCoupon::where('coupon_id', $coupon->id)
                 ->orderBy('id', 'desc')
