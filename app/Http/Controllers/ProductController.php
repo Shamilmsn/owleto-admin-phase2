@@ -209,15 +209,25 @@ class ProductController extends Controller
 
                 $priceExcludingtax = ($price / (100+$taxPercentage)) * 100;
 
-                $tdsAmount = ($tdsPercentage / 100) * $priceExcludingtax;
-                $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
+                if ($request->sector_id == Field::RESTAURANT ||
+                    $request->sector_id == Field::HOME_COOKED_FOOD) {
+                    $tdsAmount = 0;
+                    $tcsAmount = 0;
+                } else {
+                    $tdsAmount = ($tdsPercentage / 100) * $priceExcludingtax;
+                    $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
+                }
+
                 $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
                 $eightyPercentageOfCommissionAmount = (18/100)*$owletoCommissionAmount;
                 $product->owleto_commission_amount = $owletoCommissionAmount;
                 $product->eighty_percentage_of_commission_amount =
                     $eightyPercentageOfCommissionAmount;
 
-                $vendorPayment = $price-$owletoCommissionAmount-$tdsAmount-$tdsAmount-$eightyPercentageOfCommissionAmount;
+                $vendorPayment = $price-$owletoCommissionAmount -
+                    $tdsAmount -
+                    $tdsAmount -
+                    $eightyPercentageOfCommissionAmount;
 
                 $product->price_without_gst = $priceExcludingtax;
                 $product->tcs_percentage = $tcsPercentage;
@@ -306,8 +316,14 @@ class ProductController extends Controller
 
                             $priceExcludingtax = ($price / (100+$taxPercentage)) * 100;
 
-                            $tdsAmount = ($tdsPercentage / 100) * $priceExcludingtax;
-                            $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
+                            if ($request->sector_id == Field::RESTAURANT ||
+                                $request->sector_id == Field::HOME_COOKED_FOOD) {
+                                $tdsAmount = 0;
+                                $tcsAmount = 0;
+                            } else {
+                                $tdsAmount = ($tdsPercentage / 100) * $priceExcludingtax;
+                                $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
+                            }
 
                             $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
                             $eightyPercentageOfCommissionAmount = (18/100)*$owletoCommissionAmount;
@@ -627,19 +643,28 @@ class ProductController extends Controller
                 $taxPercentage = $request->tax;
                 $tdsPercentage = Product::TDS_PERCENTAGE;
                 $tcsPercentage = Product::TCS_PERCENTAGE;
-
                 $priceExcludingtax = ($price / (100 + $taxPercentage)) * 100;
 
-                $tdsAmount = ($tdsPercentage / 100) * $priceExcludingtax;
-                $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
+                if ($request->sector_id == Field::RESTAURANT ||
+                    $request->sector_id == Field::HOME_COOKED_FOOD) {
+                    $tdsAmount = 0;
+                    $tcsAmount = 0;
+                } else {
+                    $tdsAmount = ($tdsPercentage / 100) * $priceExcludingtax;
+                    $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
+                }
+
                 $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
                 $eightyPercentageOfCommissionAmount = (18 / 100) * $owletoCommissionAmount;
                 $product->owleto_commission_amount = $owletoCommissionAmount;
                 $product->eighty_percentage_of_commission_amount =
                     $eightyPercentageOfCommissionAmount;
 
-
-                $vendorPayment = $price - $owletoCommissionAmount - $tdsAmount - $tdsAmount - $eightyPercentageOfCommissionAmount;
+                $vendorPayment = $price -
+                    $owletoCommissionAmount -
+                    $tdsAmount -
+                    $tdsAmount -
+                    $eightyPercentageOfCommissionAmount;
 
                 $product->price_without_gst = $priceExcludingtax;
                 $product->tcs_percentage = $tcsPercentage;
@@ -695,8 +720,15 @@ class ProductController extends Controller
 
                         $priceExcludingtax = ($price / (100 + $taxPercentage)) * 100;
 
-                        $tdsAmount = ($tdsPercentage / 100) * $priceExcludingtax;
-                        $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
+                        if ($request->sector_id == Field::RESTAURANT ||
+                            $request->sector_id == Field::HOME_COOKED_FOOD) {
+                            $tdsAmount = 0;
+                            $tcsAmount = 0;
+                        } else {
+                            $tdsAmount = ($tdsPercentage / 100) * $priceExcludingtax;
+                            $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
+                        }
+
                         $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
                         $eightyPercentageOfCommissionAmount = (18 / 100) * $owletoCommissionAmount;
                         $vendorPayment = $price - $owletoCommissionAmount - $tdsAmount - $tdsAmount - $eightyPercentageOfCommissionAmount;
