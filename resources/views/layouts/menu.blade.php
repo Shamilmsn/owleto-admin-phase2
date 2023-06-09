@@ -172,6 +172,8 @@
     Request::is('pickup-orders*') ||
     Request::is('deliver-orders*') ||
     Request::is('return-requests*') ||
+    Request::is('express-orders*') ||
+    Request::is('home-bakers-orders*') ||
     Request::is('pickup-delivery-orders*')? 'menu-open' : '' }}">
 
         <a href="#" class="nav-link {{
@@ -185,6 +187,8 @@
             Request::is('package-orders*') ||
             Request::is('pickup-orders*') ||
             Request::is('deliver-orders*') ||
+            Request::is('express-orders*') ||
+            Request::is('home-bakers-orders*') ||
             Request::is('pickup-delivery-orders*')? 'active' : '' }}"> @if($icons)
                 <i class="nav-icon fa fa-shopping-bag"></i>@endif
             <p>{{trans('lang.order_plural')}} <i class="right fa fa-angle-left"></i>
@@ -201,6 +205,28 @@
                         <p>{{trans('lang.order_plural')}}</p>
                             @if(getPendingOrdersCount()>0) <span class="badge badge-pill badge-success driver-request-badge" id="pending_order_count">{{ getPendingOrdersCount() }}</span>@endif
 
+                    </a>
+                </li>
+            @endcan
+            @can('express-orders.index')
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::is('express-orders*') ? 'active' : '' }}"
+                       href="{!! route('express-orders.index') !!}">
+                        @if($icons)
+                            <i class="nav-icon fa fa-shopping-bag"></i>
+                        @endif
+                        <p>Express Orders</p>
+                    </a>
+                </li>
+            @endcan
+            @can('home-bakers-orders.index')
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::is('home-bakers-orders*') ? 'active' : '' }}"
+                       href="{!! route('home-bakers-orders.index') !!}">
+                        @if($icons)
+                            <i class="nav-icon fa fa-shopping-bag"></i>
+                        @endif
+                        <p>Home Bakers Orders</p>
                     </a>
                 </li>
             @endcan

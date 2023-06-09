@@ -144,6 +144,9 @@ Route::middleware('auth')->group(function () {
     ]);
 
     Route::resource('orders', 'OrderController');
+    Route::resource('express-orders', 'ExpressOrderController');
+    Route::resource('home-bakers-orders', 'HomeBakersOrderController');
+
     Route::resource('pickup-orders', 'SlotPickUpOrderController');
     Route::post('pickup-orders/assign-drivers',
         'SlotPickUpOrderController@assignDriver');
