@@ -180,6 +180,7 @@ class OrderAPIController extends Controller
 
     public function store(Request $request)
     {
+        info($request);
         if (isset($request->payment_method_id)) {
             if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_RAZORPAY) {
                 return $this->razorPay($request);
