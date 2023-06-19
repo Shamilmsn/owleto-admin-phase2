@@ -756,5 +756,5 @@ function isMerchantHasManualOrders()
 
 function getPendingOrdersCount()
 {
-    return \App\Models\Order::query()->where('order_status_id', \App\Models\Order::STATUS_RECEIVED)->count();
+    return \App\Models\Order::query()->whereNull('parent_id')->where('order_status_id', \App\Models\Order::STATUS_RECEIVED)->count();
 }

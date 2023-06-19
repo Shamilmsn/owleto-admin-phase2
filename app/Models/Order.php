@@ -72,7 +72,9 @@ class Order extends Model
         'is_driver_approved',
         'latitude',
         'longitude',
-        'address_data'
+        'address_data',
+        'order_category',
+        'parent_id',
     ];
 
     /**
@@ -114,8 +116,12 @@ class Order extends Model
      */
     protected $appends = [
         'custom_fields',
+        'sub_orders'
 
     ];
+
+    const VENDOR_BASED = 'VENDOR_BASED';
+    const PRODUCT_BASED = 'PRODUCT_BASED';
 
     const PACKAGE_TYPE = 'PACKAGE';
     const PRODUCT_TYPE = 'PRODUCT';
@@ -355,5 +361,10 @@ class Order extends Model
                 ->notify(new DriverAssignedNotificationToUser($attributes));
         }
 
+    }
+
+    public function getSubOrdersAttribute()
+    {
+        return Order::where('parent_id', $this->id)->get();
     }
 }

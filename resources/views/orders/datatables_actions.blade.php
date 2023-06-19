@@ -25,7 +25,7 @@
         <i class="fa fa-check"></i>
       </a>
   @endif
-  @if(request()->user()->hasRole('admin'))
+  @if(request()->user()->hasRole('admin') && $order->order_category == \App\Models\Order::VENDOR_BASED)
       @if($order->sector_id != \App\Models\Field::TAKEAWAY)
             @if(!$order->driver_id &&
                 $order->order_status_id != \App\Models\OrderStatus::STATUS_CANCELED &&

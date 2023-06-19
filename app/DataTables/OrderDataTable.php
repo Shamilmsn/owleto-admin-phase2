@@ -147,6 +147,7 @@ class OrderDataTable extends DataTable
         if (auth()->user()->hasRole('admin')) {
 
             $query = $model->newQuery()
+                ->whereNull('parent_id')
                 ->with('deliveryType')
                 ->with("user")
                 ->with("orderStatus")
@@ -171,6 +172,7 @@ class OrderDataTable extends DataTable
             })->pluck('id');
 
             $query = $model->newQuery()->with("user")
+                ->where('order_category', Order::VENDOR_BASED)
                 ->with("orderStatus")
                 ->with('payment')
                 ->with("market.field")
@@ -209,6 +211,7 @@ class OrderDataTable extends DataTable
                 ->select('orders.*');
         } else if (auth()->user()->hasRole('driver')) {
             $query = $model->newQuery()->with("user")->with("orderStatus")->with('payment')
+                ->where('order_category', Order::VENDOR_BASED)
                 ->where(function ($query) {
                     $query->where(function ($q) {
                             $q->where('type', Order::PRODUCT_TYPE)

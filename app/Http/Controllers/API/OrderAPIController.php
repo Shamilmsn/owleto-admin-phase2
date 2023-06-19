@@ -49,10 +49,12 @@ use App\Repositories\PickUpDeliveryOrderRepository;
 use App\Repositories\ProductOrderRepository;
 use App\Repositories\ProductOrderRequestOrderRepository;
 use App\Repositories\UserRepository;
+use App\Services\ProductWiseOrderService;
 use Flash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -179,19 +181,69 @@ class OrderAPIController extends Controller
 
     }
 
-    public function store(Request $request)
+    public function store(Request $request, ProductWiseOrderService $orderService)
     {
         if (isset($request->payment_method_id)) {
-            $data = $request->all();
-            if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_RAZORPAY) {
-                return $this->razorPay($request);
+
+            //order changed from vendor based to product based
+            $vendors = [];
+            if (count($request->get('products')) > 0) {
+                $productIds = array_unique(collect($request->get('products'))->pluck('product_id')->toArray());
+                $vendors = Product::whereIn('id', $productIds)->pluck('market_id')->toArray();
             }
-            if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_COD) {
-                return $this->cashPayment(collect($data));
+
+            $mainData = [];
+            if (count($vendors) > 1 && count($request->get('products')) > 0) {
+
+                $deliveryAddress = DeliveryAddress::findOrFail($request->get('delivery_address_id'));
+                $deliveryLat = $deliveryAddress->latitude;
+                $deliveryLon = $deliveryAddress->longitude;
+
+                foreach ($vendors as $i => $vendor) {
+                    $market = Market::findOrFail($vendor);
+                    if ($i == 0) {
+                        $mainData[] = $orderService->fetchBaseOrderForSubOrder(collect($request));
+                    }
+                    $mainData[] = $orderService->fetchMutatedRequestForSubOrder(
+                        collect($request),
+                        $market,
+                        count($vendors),
+                        $deliveryLat,
+                        $deliveryLon
+                    );
+
+                }
+
+            } else {
+                $data = $request->all();
+                $data['order_category'] = Order::VENDOR_BASED;
+
+                $mainData[] = $data;
             }
-            if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_WALLET) {
-                return $this->walletTransaction($request);
+            $parentId = null;
+
+            foreach ($mainData as $data) {
+                if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_RAZORPAY) {
+                    return $this->razorPay($request);
+                }
+                if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_COD) {
+                    $response = $this->cashPayment(collect($data), $parentId);
+                    info("FINAL : " . json_encode($response));
+                    if ($response['order']['order_category'] == Order::PRODUCT_BASED) {
+                        $parentId = $response['order']['id'];
+                    }
+                }
+                if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_WALLET) {
+                    return $this->walletTransaction($request);
+                }
             }
+
+            if ($response['order']['parent_id']) {
+                $order = Order::findOrFail($response['order']['parent_id']);
+                $response['order'] = $order;
+            }
+
+            return $this->sendResponse($response, __('lang.saved_successfully', ['operator' => __('lang.order')]));
         }
     }
 
@@ -611,7 +663,7 @@ class OrderAPIController extends Controller
         return $this->sendResponse($response, 'Inserted Successfully');
     }
 
-    private function cashPayment(Collection $request)
+    private function cashPayment(Collection $request, $parentId)
     {
         $input = $request->all();
 
@@ -673,6 +725,12 @@ class OrderAPIController extends Controller
             $marketId = null;
         }
 
+        if ($input['order_category'] == Order::PRODUCT_BASED) {
+            $marketId = null;
+        }
+
+        info("MARKET ID : " . $marketId);
+
         try {
             $isWalletUsed = ($amountFromWallet ? true : false);
             $deliveryAddress = DeliveryAddress::find($request->get('delivery_address_id'));
@@ -699,6 +757,8 @@ class OrderAPIController extends Controller
                 'latitude' => $deliveryAddress->latitude,
                 'longitude' => $deliveryAddress->longitude,
                 'address_data' => json_encode($deliveryAddress),
+                'order_category' => $request->get('order_category'),
+                'parent_id' => $parentId
             ]);
 
             if ($amountFromWallet) {
@@ -919,32 +979,42 @@ class OrderAPIController extends Controller
 
             }
 
-            if ($productCount > 0) {
-                $marketID = $order->productOrders[0]->product->market->id;
-            }
-            if ($input['package']) {
-                $marketID = $order->packageOrders[0]->package->product->market->id;
-            }
-            if ($input['order_request']) {
-                $marketID = $marketId;
+            $marketID = null;
+
+            if ($input['order_category'] != Order::PRODUCT_BASED) {
+                if ($productCount > 0) {
+                    $marketID = $order->productOrders[0]->product->market->id;
+                }
+                if ($input['package']) {
+                    $marketID = $order->packageOrders[0]->package->product->market->id;
+                }
+                if ($input['order_request']) {
+                    $marketID = $marketId;
+                }
+
+                if ($input['pickup_delivery_order']) {
+                    $marketID = null;
+                }
+
             }
 
-            if ($input['pickup_delivery_order']) {
-                $marketID = null;
+
+            info("PARENT : " . $parentId);
+
+            if (!$parentId) {
+                $payment = $this->paymentRepository->create([
+                    "user_id" => $input['user_id'],
+                    "order_id" => $order->id,
+                    "description" => trans("lang.payment_order_waiting"),
+                    "price" => $totalAmount,
+                    "status" => 'Waiting for Client',
+                    "method" => PaymentMethod::CASH_ON_DELIVERY,
+                    'payment_method_id' => PaymentMethod::PAYMENT_METHOD_COD
+                ]);
+
+
+                $this->orderRepository->update(['payment_id' => $payment->id, 'market_id' => $marketID], $order->id);
             }
-
-            $payment = $this->paymentRepository->create([
-                "user_id" => $input['user_id'],
-                "order_id" => $order->id,
-                "description" => trans("lang.payment_order_waiting"),
-                "price" => $totalAmount,
-                "status" => 'Waiting for Client',
-                "method" => PaymentMethod::CASH_ON_DELIVERY,
-                'payment_method_id' => PaymentMethod::PAYMENT_METHOD_COD
-            ]);
-
-
-            $this->orderRepository->update(['payment_id' => $payment->id, 'market_id' => $marketID], $order->id);
 
             $this->cartRepository->deleteWhere(['user_id' => $order->user_id]);
 
@@ -968,65 +1038,69 @@ class OrderAPIController extends Controller
                 //    Notification::send($order->productOrderRequestOrder->temporaryOrderRequest->orderRequest->market->users, new NewOrder($order));
             }
 
-            try {
-                $currentUser = User::findOrFail($request->get('user_id'));
-                if ($marketID) {
-                    $market = Market::with('users')
-                        ->where('id', $marketID)
-                        ->first();
+            if (!$parentId) {
 
-                    if (count($market->users) > 0) {
-                        foreach ($market->users as $user) {
-                            info($user->device_token);
-                            info($user->name);
-                            $userFcmToken = $user->device_token;
-                            $userOrder = Order::findOrFail($order->id);
-                            $attributes['title'] = $userOrder->type == Order::ORDER_REQUEST_TYPE ? 'Manual order placed successfully' : 'Order placed successfully';
-                            $attributes['redirection_type'] = Order::NEW_ORDER_REDIRECTION_TYPE;
-                            $attributes['message'] = 'You have received a new order from ' . $currentUser->name . ' with OrderID ' . $order->id . 'for ' . $market->name;
-                            $attributes['image'] = $url;
-                            $attributes['data'] = null;
-                            $attributes['redirection_id'] = $order->id;
-                            $attributes['type'] = $order->type;
+                try {
+                    $currentUser = User::findOrFail($request->get('user_id'));
+                    if ($marketID) {
+                        $market = Market::with('users')
+                            ->where('id', $marketID)
+                            ->first();
 
-                            Notification::route('fcm', $userFcmToken)
-                                ->notify(new NewOrder($attributes));
+                        if (count($market->users) > 0) {
+                            foreach ($market->users as $user) {
+                                info($user->device_token);
+                                info($user->name);
+                                $userFcmToken = $user->device_token;
+                                $userOrder = Order::findOrFail($order->id);
+                                $attributes['title'] = $userOrder->type == Order::ORDER_REQUEST_TYPE ? 'Manual order placed successfully' : 'Order placed successfully';
+                                $attributes['redirection_type'] = Order::NEW_ORDER_REDIRECTION_TYPE;
+                                $attributes['message'] = 'You have received a new order from ' . $currentUser->name . ' with OrderID ' . $order->id . 'for ' . $market->name;
+                                $attributes['image'] = $url;
+                                $attributes['data'] = null;
+                                $attributes['redirection_id'] = $order->id;
+                                $attributes['type'] = $order->type;
+
+                                Notification::route('fcm', $userFcmToken)
+                                    ->notify(new NewOrder($attributes));
+                            }
                         }
                     }
+
+
+                } catch (\Exception $e) {
+
                 }
 
+                try {
+                    $userFcmToken = $order->user->device_token;
+                    // select only order detail for fcm notification
+                    $userOrder = Order::findOrFail($order->id);
+                    $attributes['title'] = $userOrder->type == Order::ORDER_REQUEST_TYPE ? 'Manual order placed successfully' : 'Order placed successfully';
+                    $attributes['redirection_type'] = Order::NEW_ORDER_REDIRECTION_TYPE;
+                    $attributes['message'] = 'Your new Order from ' . $marketName . ' is placed with OrderID' . $order->id;
+                    $attributes['image'] = $url;
+                    $attributes['data'] = $userOrder->toArray();
+                    $attributes['type'] = $userOrder->type;
+                    $attributes['redirection_id'] = $userOrder->id;
+                    Notification::route('fcm', $userFcmToken)
+                        ->notify(new NewOrder($attributes));
 
-            } catch (\Exception $e) {
+                } catch (\Exception $e) {
 
+                }
+
+                try {
+
+                    $attributes['email'] = $order->user->email;
+                    $attributes['order_id'] = $order->id;
+                    Mail::send(new NewOrderMail($attributes));
+
+                } catch (\Exception $e) {
+
+                }
             }
 
-            try {
-                $userFcmToken = $order->user->device_token;
-                // select only order detail for fcm notification
-                $userOrder = Order::findOrFail($order->id);
-                $attributes['title'] = $userOrder->type == Order::ORDER_REQUEST_TYPE ? 'Manual order placed successfully' : 'Order placed successfully';
-                $attributes['redirection_type'] = Order::NEW_ORDER_REDIRECTION_TYPE;
-                $attributes['message'] = 'Your new Order from ' . $marketName . ' is placed with OrderID' . $order->id;
-                $attributes['image'] = $url;
-                $attributes['data'] = $userOrder->toArray();
-                $attributes['type'] = $userOrder->type;
-                $attributes['redirection_id'] = $userOrder->id;
-                Notification::route('fcm', $userFcmToken)
-                    ->notify(new NewOrder($attributes));
-
-            } catch (\Exception $e) {
-
-            }
-
-            try {
-
-                $attributes['email'] = $order->user->email;
-                $attributes['order_id'] = $order->id;
-                Mail::send(new NewOrderMail($attributes));
-
-            } catch (\Exception $e) {
-
-            }
 
             if ($request->get('addons')) {
                 $ordeAddons = $request->get('addons');
@@ -1037,48 +1111,55 @@ class OrderAPIController extends Controller
 
             DB::commit();
 
+            info($order);
+
             $response = ['order' => $order, 'razorpayOrderId' => null];
 
         } catch (ValidatorException $e) {
             return $this->sendError($e->getMessage());
         }
 
-        if ($request->get('is_coupon_used') == true) {
-            $coupon = Coupon::where('code', $request->get('coupon_code'))->first();
+        if (!$parentId) {
+            if ($request->get('is_coupon_used') == true) {
+                $coupon = Coupon::where('code', $request->get('coupon_code'))->first();
 
-            $order->is_coupon_used = true;
-            $order->coupon_code = $request->get('coupon_code');
-            $order->coupon_discount_amount = $coupon->discount;
-            $order->save();
+                $order->is_coupon_used = true;
+                $order->coupon_code = $request->get('coupon_code');
+                $order->coupon_discount_amount = $coupon->discount;
+                $order->save();
 
-            if (!$coupon) {
-                return $this->sendError('Coupon code is not found');
+                if (!$coupon) {
+                    return $this->sendError('Coupon code is not found');
+                }
+
+                $orderCoupon = new OrderCoupon();
+
+                $orderCoupon->user_id = $request->get('user_id');
+                $orderCoupon->order_id = $order->id;
+                $orderCoupon->coupon_id = $coupon->id;
+                $orderCoupon->coupon_redeemed_amount = $request->get('coupon_redeemed_amount');
+
+                $isCouponAlreadyUsed = OrderCoupon::where('coupon_id', $coupon->id)
+                    ->orderBy('id', 'desc')
+                    ->first();
+
+                if (!$isCouponAlreadyUsed) {
+                    $orderCoupon->number_of_usage = 1;
+                } else {
+                    $number_of_usage = $isCouponAlreadyUsed->number_of_usage;
+                    $orderCoupon->number_of_usage = $number_of_usage + 1;
+                }
+
+                $orderCoupon->save();
+
             }
-
-            $orderCoupon = new OrderCoupon();
-
-            $orderCoupon->user_id = $request->get('user_id');
-            $orderCoupon->order_id = $order->id;
-            $orderCoupon->coupon_id = $coupon->id;
-            $orderCoupon->coupon_redeemed_amount = $request->get('coupon_redeemed_amount');
-
-            $isCouponAlreadyUsed = OrderCoupon::where('coupon_id', $coupon->id)
-                ->orderBy('id', 'desc')
-                ->first();
-
-            if (!$isCouponAlreadyUsed) {
-                $orderCoupon->number_of_usage = 1;
-            } else {
-                $number_of_usage = $isCouponAlreadyUsed->number_of_usage;
-                $orderCoupon->number_of_usage = $number_of_usage + 1;
-            }
-
-            $orderCoupon->save();
 
         }
 
+        info("MARKETID : " . $marketId);
+        info(Order::findOrFail($order->id));
 
-        return $this->sendResponse($response, __('lang.saved_successfully', ['operator' => __('lang.order')]));
+        return $response;
     }
 
     /**

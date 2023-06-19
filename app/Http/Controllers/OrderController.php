@@ -10,6 +10,7 @@ use App\DataTables\OrderDataTable;
 use App\DataTables\ProductOrderDataTable;
 use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Models\Banner;
 use App\Models\DeliveryType;
 use App\Models\Driver;
 use App\Models\DriversCurrentLocation;
@@ -53,6 +54,8 @@ use Kreait\Firebase\Contract\Database;
 use Laracasts\Flash\Flash;
 use Prettus\Repository\Exceptions\RepositoryException;
 use Prettus\Validator\Exceptions\ValidatorException;
+use Yajra\DataTables\Facades\DataTables;
+use Yajra\DataTables\Html\Builder;
 
 class
 OrderController extends Controller
@@ -139,7 +142,7 @@ OrderController extends Controller
      * @throws RepositoryException
      */
 
-    public function show(ProductOrderDataTable $productOrderDataTable, $id)
+    public function show(Builder $builder, ProductOrderDataTable $productOrderDataTable, $id)
     {
         $this->orderRepository->pushCriteria(new OrdersOfUserCriteria(auth()->id()));
         $order = $this->orderRepository->findWithoutFail($id);
@@ -152,11 +155,20 @@ OrderController extends Controller
         $productOrderRow = ProductOrder::where('order_id', $id)->first();
         $product_id = $productOrderRow->product_id;
         $productAttributes = $this->productAttributeOptionRepository->where('product_id', $product_id)->get();
+        $subOrders = Order::where('parent_id', $id)->with('payment')->get();
+        $drivers = Driver::where('admin_approved', 1)
+            ->whereHas('user', function ($query) {
+                $query->where('driver_signup_status', 5);
+            })
+            ->with('user')
+            ->get();
 
         return $productOrderDataTable->with('id', $id)
             ->render('orders.show', [
                 "order" => $order,
-                "productAttributes" => $productAttributes
+                "productAttributes" => $productAttributes,
+                'subOrders' => $subOrders,
+                'drivers' => $drivers
             ]);
     }
 
@@ -625,16 +637,25 @@ OrderController extends Controller
 
         if ($order->driver && $order->is_driver_approved) {
             Flash::error(__('driver already assigned'));
+            if ($order->parent_id) {
+                return redirect(route('orders.show', $order->parent_id));
+            }
             return redirect(route('orders.index'));
         }
 
         if ($order->order_status_id == OrderStatus::STATUS_CANCELED) {
             Flash::error(__('order already canceled'));
+            if ($order->parent_id) {
+                return redirect(route('orders.show', $order->parent_id));
+            }
             return redirect(route('orders.index'));
         }
 
         if ($order->is_order_approved != 1) {
             Flash::error(__('Merchant not approved the order'));
+            if ($order->parent_id) {
+                return redirect(route('orders.show', $order->parent_id));
+            }
             return redirect(route('orders.index'));
         }
 
@@ -648,6 +669,9 @@ OrderController extends Controller
 
         if (!$driver) {
             Flash::error(__('Driver Not Found'));
+            if ($order->parent_id) {
+                return redirect(route('orders.show', $order->parent_id));
+            }
             return redirect(route('orders.index'));
         }
 
@@ -719,6 +743,9 @@ OrderController extends Controller
         }
 
         Flash::success(__('Driver Assigned Successfully'));
+        if ($order->parent_id) {
+            return redirect(route('orders.show', $order->parent_id));
+        }
         return redirect(route('orders.index'));
     }
 }
