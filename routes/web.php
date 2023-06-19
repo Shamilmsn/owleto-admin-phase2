@@ -242,6 +242,8 @@ Route::middleware('auth')->group(function () {
     Route::get('dashboard/earning_graph', 'DashboardController@byMonth')->name('dashboard.payment');
     Route::get('update-orders-sector-id', 'OrderController@updateSectorIds');
     Route::post('assign-driver-to-orders', 'OrderController@assignDriver');
+    Route::post('assign-driver-to-express-orders', 'ExpressOrderController@assignDriver');
+    Route::post('assign-driver-to-home-bakers-orders', 'HomeBakersOrderController@assignDriver');
     Route::post('assign-driver-to-pickup-orders', 'PickUpDeliveryOrderController@assignDriver');
     Route::post('assign-driver-to-package-orders', 'PackageOrderController@assignDriver');
     Route::post('assign-driver-to-todays-package-orders', 'TodayPackageOrderController@assignDriver');

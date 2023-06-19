@@ -97,7 +97,7 @@
   <div class="modal fade" id="drivers-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
           <div class="modal-content">
-              <form method="post" action="{{url('assign-driver-to-orders')}}">
+              <form method="post" action="{{url('assign-driver-to-home-bakers-orders')}}">
                   @csrf
                   <input type="hidden" name="order_id" id="order_id">
                   <div class="modal-header">
