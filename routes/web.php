@@ -144,6 +144,9 @@ Route::middleware('auth')->group(function () {
     ]);
 
     Route::resource('orders', 'OrderController');
+    Route::resource('express-orders', 'ExpressOrderController');
+    Route::resource('home-bakers-orders', 'HomeBakersOrderController');
+
     Route::resource('pickup-orders', 'SlotPickUpOrderController');
     Route::post('pickup-orders/assign-drivers',
         'SlotPickUpOrderController@assignDriver');
@@ -239,6 +242,8 @@ Route::middleware('auth')->group(function () {
     Route::get('dashboard/earning_graph', 'DashboardController@byMonth')->name('dashboard.payment');
     Route::get('update-orders-sector-id', 'OrderController@updateSectorIds');
     Route::post('assign-driver-to-orders', 'OrderController@assignDriver');
+    Route::post('assign-driver-to-express-orders', 'ExpressOrderController@assignDriver');
+    Route::post('assign-driver-to-home-bakers-orders', 'HomeBakersOrderController@assignDriver');
     Route::post('assign-driver-to-pickup-orders', 'PickUpDeliveryOrderController@assignDriver');
     Route::post('assign-driver-to-package-orders', 'PackageOrderController@assignDriver');
     Route::post('assign-driver-to-todays-package-orders', 'TodayPackageOrderController@assignDriver');
@@ -247,6 +252,10 @@ Route::middleware('auth')->group(function () {
     Route::post('remove-from-featured-products', 'ProductController@removeFromFeatured');
     Route::resource('todays-package-orders', 'TodayPackageOrderController');
     Route::resource('return-requests', 'ReturnRequestsController');
+    Route::resource('product-approvals', 'ProductApprovalController');
+    Route::resource('flash-sales', 'FlashSaleController');
+    Route::get('flash-sales/{productId}/approve', 'FlashSaleController@approveFlashSale');
+    Route::get('flash-sales/{productId}/delete', 'FlashSaleController@removeFlashSale');
 });
 
 Route::get('privacy-policy', 'PrivacyPolicyController@index');

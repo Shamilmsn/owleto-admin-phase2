@@ -183,6 +183,7 @@ class OrderAPIController extends Controller
 
     public function store(Request $request, ProductWiseOrderService $orderService)
     {
+        info($request);
         if (isset($request->payment_method_id)) {
 
             //order changed from vendor based to product based

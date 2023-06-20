@@ -2,6 +2,7 @@
 
 namespace App\DataTables;
 
+use App\Models\DeliveryType;
 use App\Models\Field;
 use App\Models\Market;
 use App\Models\Order;
@@ -13,7 +14,7 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Services\DataTable;
 
-class OrderDataTable extends DataTable
+class HomeBakersOrderDataTable extends DataTable
 {
     /**
      * custom fields columns
@@ -96,43 +97,22 @@ class OrderDataTable extends DataTable
                 }
 
             })
-            ->editColumn('is_collected_from_driver', function ($order) {
-
-                if ($order->is_collected_from_driver == 1) {
-                    return 'Yes';
-                }
-
-                return 'No';
-
-            })
-            ->editColumn('payment.method', function ($order) {
-
-                if ($order->payment_method_id == PaymentMethod::PAYMENT_METHOD_WALLET) {
-                    return 'Wallet';
-                }
-
-                return optional($order->paymentMethod)->name;
-
-            })
             ->editColumn('market_id', function ($order) {
                 return optional($order->market)->name;
             })
             ->editColumn('driver_id', function ($order) {
                 return optional($order->driver)->name;
             })
-//            ->editColumn('active', function ($product) {
-//                return getBooleanColumn($product, 'active');
-//            })
             ->addColumn('vendor_payment',function ($order){
                 return $order->sub_total - $order->owleto_commission_amount;
             })
             ->addColumn('action', function ($order) {
-                return view('orders.datatables_actions', compact('order'));
+                return view('home-bakers-orders.datatables_actions', compact('order'));
             })
             ->editColumn('driver_commission_amount',function ($order){
                 return $order->driver_commission_amount.'<p class="small">Distance : '.round($order->driver_total_distance,3).'</p>';
             })
-            ->rawColumns(array_merge($columns,['active','updated_at', 'action']));
+            ->rawColumns(array_merge($columns,['active', 'action']));
 
         return $dataTable;
     }
@@ -148,13 +128,12 @@ class OrderDataTable extends DataTable
         if (auth()->user()->hasRole('admin')) {
 
             $query = $model->newQuery()
-                ->whereNull('parent_id')
                 ->with('deliveryType')
                 ->with("user")
                 ->with("orderStatus")
                 ->with("market")
                 ->with('payment')
-                ->where('sector_id', '!=', Field::HOME_COOKED_FOOD)
+                ->where('sector_id', Field::HOME_COOKED_FOOD)
                 ->whereHas('deliveryType', function ($query) {
                     $query->where('isTimeType', 1);
                 })
@@ -177,7 +156,6 @@ class OrderDataTable extends DataTable
             })->pluck('id');
 
             $query = $model->newQuery()->with("user")
-                ->where('order_category', Order::VENDOR_BASED)
                 ->with("orderStatus")
                 ->with('payment')
                 ->with("market.field")
@@ -216,7 +194,6 @@ class OrderDataTable extends DataTable
                 ->select('orders.*');
         } else if (auth()->user()->hasRole('driver')) {
             $query = $model->newQuery()->with("user")->with("orderStatus")->with('payment')
-                ->where('order_category', Order::VENDOR_BASED)
                 ->where(function ($query) {
                     $query->where(function ($q) {
                             $q->where('type', Order::PRODUCT_TYPE)
@@ -255,8 +232,6 @@ class OrderDataTable extends DataTable
             ->setTableId('tbl-order')
             ->columns($this->getColumns())
             ->minifiedAjax()
-//            ->dom("<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6 text-right'B>><'row'<'col-sm-12'tr>><'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>")
-//            ->orderBy(4, 'desc')
             ->parameters([
                 'searching' => false,
                 'ordering' => false,
@@ -304,11 +279,6 @@ class OrderDataTable extends DataTable
                 'visible' => request()->user()->hasRole('admin') ? true : false,
             ],
             [
-                'data' => 'is_collected_from_driver',
-                'title' => 'Is Collected?',
-
-            ],
-            [
                 'data' => 'driver_commission_amount',
                 'title' => 'Driver Commission',
                 'visible' => request()->user()->hasRole('admin') ? true : false,
@@ -328,27 +298,9 @@ class OrderDataTable extends DataTable
                 'title' => 'Vendor Commission',
             ],
             [
-                'data' => 'payment.method',
-                'name' => 'payment.method',
-                'title' => trans('lang.payment_method'),
-
-            ],
-            [
                 'data' => 'delivery_type.name',
                 'name' => 'deliveryType.name',
                 'title' => trans('lang.delivery_type'),
-
-            ],
-//            [
-//                'data' => 'active',
-//                'title' => trans('lang.order_active'),
-//
-//            ],
-            [
-                'data' => 'updated_at',
-                'title' => trans('lang.order_updated_at'),
-                'searchable' => true,
-                'orderable' => true,
 
             ],
             [
@@ -356,16 +308,7 @@ class OrderDataTable extends DataTable
                 'title' => 'Action',
                 'searchable' => true,
                 'orderable' => true,
-            ]
-            /* Column::make('id')->name('id')->title('#Booking'),
-             Column::make('add your columns'),
-             Column::make('created_at'),
-             Column::make('updated_at'),
-             Column::computed('action')
-                 ->exportable(false)
-                 ->printable(false)
-                 ->width(60)
-                 ->addClass('text-right'),*/
+            ],
         ];
     }
 

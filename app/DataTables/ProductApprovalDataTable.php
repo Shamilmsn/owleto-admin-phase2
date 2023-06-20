@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Services\DataTable;
 
-class ProductDataTable extends DataTable
+class ProductApprovalDataTable extends DataTable
 {
     /**
      * custom fields columns
@@ -50,20 +50,11 @@ class ProductDataTable extends DataTable
             ->editColumn('discount_price', function ($product) {
                 return getPriceColumn($product,'discount_price');
             })
-            ->editColumn('capacity', function ($product) {
-                return $product['capacity']." ".$product['unit'];
-            })
-            ->editColumn('updated_at', function ($product) {
-                return getDateColumn($product, 'updated_at');
-            })
-//            ->editColumn('featured', function ($product) {
-//                return getBooleanColumn($product, 'featured');
-//            })
             ->editColumn('is_base_product', function ($product) {
                 return getBooleanColumn($product, 'is_base_product');
             })
             ->addColumn('action', function ($product) {
-                return view('products.datatables_actions', compact('product'));
+                return view('products-approvals.datatables_actions', compact('product'));
             })
             ->setRowClass(function ($product) {
                 return $product->product_type == 3 ? 'bg-info' : 'bg-white';
@@ -81,47 +72,18 @@ class ProductDataTable extends DataTable
      */
     public function query(Product $model)
     {
-
         if (auth()->user()->hasRole('admin')) {
-
-            $user = auth()->user();
-
-                return $model->newQuery()
-                    ->with("market")
-                    ->with("category")
-                    ->join("markets", "markets.id", "=", "products.market_id")
-//                ->where("markets.city_id", $user->city_id)
+            return $model->newQuery()
+                ->with("market")
+                ->with("category")
+                ->join("markets", "markets.id", "=", "products.market_id")
                 ->select('products.*')
+                ->where('products.is_approved', 0)
                 ->orderBy('products.updated_at','desc');
 
-        } else if (auth()->user()->hasRole('vendor_owner')) {
-            return $model->newQuery()->with("market")->with("category")
-                ->join("user_markets", "user_markets.market_id", "=", "products.market_id")
-                ->where('user_markets.user_id', auth()->id())
-                ->groupBy('products.id')
-                ->select('products.*')->orderBy('products.updated_at', 'desc');
-
-        } else if (auth()->user()->hasRole('driver')) {
-            return $model->newQuery()->with("market")->with("category")
-                ->join("driver_markets", "driver_markets.market_id", "=", "products.market_id")
-                ->where('driver_markets.user_id', auth()->id())
-                ->groupBy('products.id')
-                ->select('products.*')->orderBy('products.updated_at', 'desc');
-        } else if (auth()->user()->hasRole('client')) {
-            return $model->newQuery()->with("market")->with("category")
-                ->join("product_orders", "product_orders.product_id", "=", "products.id")
-                ->join("orders", "product_orders.order_id", "=", "orders.id")
-                ->where('orders.user_id', auth()->id())
-                ->groupBy('products.id')
-                ->select('products.*')->orderBy('products.updated_at', 'desc');
         }
     }
 
-    /**
-     * Optional method if you want to use html builder.
-     *
-     * @return \Yajra\DataTables\Html\Builder
-     */
     public function html()
     {
         return $this->builder()
@@ -134,11 +96,6 @@ class ProductDataTable extends DataTable
             ]);
     }
 
-    /**
-     * Get columns.
-     *
-     * @return array
-     */
     protected function getColumns()
     {
         $columns = [
@@ -169,36 +126,6 @@ class ProductDataTable extends DataTable
 
             ],
             [
-                'data' => 'tax',
-                'title' => 'Tax Amount',
-                'visible' => Auth::user()->hasRole('admin')
-            ],
-            [
-                'data' => 'price_without_gst',
-                'title' => 'Price Exclude Tax',
-                'visible' => Auth::user()->hasRole('admin')
-            ],
-            [
-                'data' => 'tcs_amount',
-                'title' => 'TCS Amount',
-                'visible' => Auth::user()->hasRole('admin')
-            ],
-            [
-                'data' => 'tds_amount',
-                'title' => 'TDS Amount',
-                'visible' => Auth::user()->hasRole('admin')
-            ],
-            [
-                'data' => 'owleto_commission_amount',
-                'title' => 'Owleto Commission Amount',
-                'visible' => Auth::user()->hasRole('admin')
-            ],
-            [
-                'data' => 'eighty_percentage_of_commission_amount',
-                'title' => '18% of Commission Amount',
-                'visible' => Auth::user()->hasRole('admin')
-            ],
-            [
                 'data' => 'vendor_payment_amount',
                 'title' => 'Vendor Payment',
                 'visible' => Auth::user()->hasRole('admin')
@@ -207,12 +134,7 @@ class ProductDataTable extends DataTable
                 'data' => 'market.name',
                 'title' => trans('lang.product_market_id'),
 
-            ],
-            [
-                'data' => 'category.name',
-                'title' => trans('lang.product_category_id'),
-
-            ],
+            ]
         ];
 
         $hasCustomField = in_array(Product::class, setting('custom_field_models', []));
