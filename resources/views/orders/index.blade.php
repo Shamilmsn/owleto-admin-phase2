@@ -98,8 +98,10 @@
   <div class="modal fade" id="drivers-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
           <div class="modal-content">
-              <form method="post" action="{{url('assign-driver-to-orders')}}">
+              <form method="post" action="{{url('assign-driver-to-sloted-orders')}}">
                   @csrf
+                  <input type="hidden" name="ordersIds" id="order_ids">
+
                   <input type="hidden" name="order_id" id="order_id">
                   <div class="modal-header">
                       <h5 class="modal-title" id="exampleModalLabel">Assign Driver</h5>
@@ -128,6 +130,44 @@
       $(function (){
 
           var $table = $('#tbl-order');
+
+          let orderIds = [];
+
+          $('#tbl-order').on('click', '.ids-all-select', function() {
+              var orderId = $(this).attr('data-id');
+              if($(this).is(':checked')){
+                  if (orderIds.indexOf(orderId) === -1) {
+                      orderIds.push(parseInt(orderId));
+                  }
+              } else {
+                  orderIds = $.grep(orderIds, function(value) {
+                      return value != orderId;
+                  });
+              }
+          });
+
+          $('#select-all').on('change', function() {
+              $('input[name="ids[]"]').prop('checked', $(this).prop('checked'));
+              if($(this).is(':checked')) {
+                  $('input[name="ids[]"]').each(function () {
+                      var orderId = $(this).attr('data-id');
+                      if (orderIds.indexOf(orderId) === -1) {
+                          orderIds.push(parseInt(orderId));
+                      }
+                  });
+              } else {
+                  $('input[name="ids[]"]').each(function () {
+                      var orderId = $(this).attr('data-id');
+                      orderIds.pop(orderId);
+                  });
+              }
+          });
+
+          $('#tbl-order').on('click', '#driver-assign', function (e){
+              e.preventDefault();
+              $("#order_ids").val(orderIds.join(','));
+              $('#drivers-modal').modal('show');
+          });
 
           $('#tbl-order').on('click', '.assign-driver', function (e){
             e.preventDefault();

@@ -27,6 +27,7 @@ use App\Models\Product;
 use App\Models\ProductAttributeOption;
 use App\Models\ProductOrder;
 use App\Models\ProductOrderRequestOrder;
+use App\Models\SlotedDeliveryDriverHistory;
 use App\Models\SubscriptionPackage;
 use App\Models\TemporaryOrderRequest;
 use App\Models\User;
@@ -617,105 +618,63 @@ OrderController extends Controller
         }
     }
 
-    public function assignDriver(Request $request)
+    public function assignDriverToOrder(Request $request)
     {
-        $orderId = $request->order_id;
-
-        $order = Order::findOrFail($orderId);
-
-        if ($order->driver && $order->is_driver_approved) {
-            Flash::error(__('driver already assigned'));
-            return redirect(route('orders.index'));
-        }
-
-        if ($order->order_status_id == OrderStatus::STATUS_CANCELED) {
-            Flash::error(__('order already canceled'));
-            return redirect(route('orders.index'));
-        }
-
-        if ($order->is_order_approved != 1) {
-            Flash::error(__('Merchant not approved the order'));
-            return redirect(route('orders.index'));
-        }
-
         $driverId = $request->driver_id;
         $driver = Driver::where('user_id', $driverId)->first();
 
-//        if (!$driver->available) {
-//            Flash::error(__('Driver have already an order'));
-//            return redirect(route('orders.index'));
-//        }
-
         if (!$driver) {
             Flash::error(__('Driver Not Found'));
-            return redirect(route('orders.index'));
+            return redirect(route('deliver-orders.index'));
         }
 
-        $isDriverAlreadyExists = true;
-        if ($order->driver_id) {
-            $previousDriver = Driver::where('user_id', $order->driver_id)->first();
-            $previousDriver->available = 1;
-            $previousDriver->save();
-            $isDriverAlreadyExists = false;
-        }
+        $orderIds = explode(',', $request->ordersIds);
 
-        $distance = $order->distance;
-        if ($distance <= $driver->base_distance) {
-            $driverCommissionAmount = $driver->delivery_fee;
-        } else {
-            $additionalDistance = $order->distance - $driver->base_distance;
-            $driverCommissionAmount = $driver->delivery_fee + $additionalDistance * $driver->additional_amount;
-        }
+        foreach ($orderIds as $orderId) {
 
-        $order->order_status_id = OrderStatus::STATUS_DRIVER_ASSIGNED;
-        $order->driver_id = $driverId;
-        $order->driver_assigned_at = Carbon::now();
-//        $order->driver_commission_amount = $driverCommissionAmount;
-        $order->driver_commission_amount = $driver->delivery_fee;
+            $order = Order::find($orderId);
+            $slotedDeliveryHistory = SlotedDeliveryDriverHistory::query()
+                ->where('order_id', $orderId)
+                ->first();
 
+            if ($order->order_status_id != OrderStatus::STATUS_DELIVERED
+                || $order->order_status_id != OrderStatus::STATUS_CANCELED) {
+                if ($order->is_order_approved && $slotedDeliveryHistory) {
+//                $order->picked_or_delivered = Order::DELIVERED;
+                    $order->order_status_id = OrderStatus::STATUS_DRIVER_ASSIGNED;
+                    $order->driver_id = $driverId;
+                    $order->driver_assigned_at = Carbon::now();
+                    $order->save();
 
-        $order->save();
-        $driver->available = 0;
-        $driver->save();
+                    $slotedDeliveryHistory->order_id = $orderId;
+                    $slotedDeliveryHistory->delivered_driver_id = $driverId;
+                    $slotedDeliveryHistory->delivered_driver_assigned_at = Carbon::now();
+                    $slotedDeliveryHistory->status =
+                        SlotedDeliveryDriverHistory::STATUS_DELIVER_ASSIGNED;
+                    $slotedDeliveryHistory->save();
 
-        try {
+                    try {
 
-            $correspondingDriver = User::findorFail($driverId);
-            $driverFcmToken = $correspondingDriver->device_token;
+                        $user = User::findorFail($order->user_id);
+                        $userFcmToken = $user->device_token;
 
-            $attributes['title'] = 'Owleto Order';
-            $attributes['message'] = 'Owleto Order with OrderID : ' . $order->id . ' has been Assigned to you.';
-            $attributes['data'] = $order->toArray();
-            $attributes['redirection_type'] = Order::STATUS_DRIVER_ASSIGNED;
-            $attributes['redirection_id'] = $order->id;
-            $attributes['type'] = $order->type;
+                        $attributes['title'] = 'Owleto Order';
+                        $attributes['message'] = 'Your Order with OrderID '
+                            . $order->id . ' has been Shipped';
+                        $attributes['data'] = $order->toArray();
+                        $attributes['redirection_type'] = Order::STATUS_ON_THE_WAY;
+                        $attributes['redirection_id'] = $order->id;
+                        $attributes['type'] = $order->type;
 
-            Notification::route('fcm', $driverFcmToken)
-                ->notify(new DriverAssignedNotification($attributes));
+                        Notification::route('fcm', $userFcmToken)
+                            ->notify(new DriverAssignedNotificationToUser($attributes));
 
-        } catch (Exception $e) {
+                    } catch (Exception $e) {
 
-        }
-        if ($isDriverAlreadyExists) {
-            try {
-
-                $user = User::findorFail($order->user_id);
-                $userFcmToken = $user->device_token;
-                // select only order detail  for fcm notification
-
-                $attributes['title'] = 'Owleto Order';
-                $attributes['message'] = 'Your Order with OrderID ' . $order->id . ' has been Shipped';
-                $attributes['data'] = $order->toArray();
-                $attributes['redirection_type'] = Order::STATUS_ON_THE_WAY;
-                $attributes['redirection_id'] = $order->id;
-                $attributes['type'] = $order->type;
-
-                Notification::route('fcm', $userFcmToken)
-                    ->notify(new DriverAssignedNotificationToUser($attributes));
-
-            } catch (Exception $e) {
-
+                    }
+                }
             }
+
         }
 
         Flash::success(__('Driver Assigned Successfully'));
