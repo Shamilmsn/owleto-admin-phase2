@@ -36,6 +36,7 @@ class Coupon extends Model
         'total_number_of_coupon',
         'use_limit_per_person',
         'minimum_order_value',
+        'sector_id'
     ];
 
     /**
@@ -96,5 +97,10 @@ class Coupon extends Model
     public function discountables()
     {
         return $this->hasMany(\App\Models\Discountable::class, 'coupon_id');
+    }
+
+    public function sector()
+    {
+        return $this->belongsTo(Field::class, 'sector_id');
     }
 }

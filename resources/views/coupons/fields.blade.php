@@ -16,6 +16,14 @@
       @endif
     </div>
   </div>
+
+  <div class="form-group row ">
+    {!! Form::label('sector_id', 'Sector',['class' => 'col-3 control-label text-right']) !!}
+    <div class="col-9">
+      {!! Form::select('sector_id', $sectors, null, ['class' => 'select2 form-control']) !!}
+      <div class="form-text text-muted">Choose the sector</div>
+    </div>
+  </div>
   
   <!-- Discount Type Field -->
 <div class="form-group row ">
