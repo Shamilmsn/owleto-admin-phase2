@@ -68,6 +68,7 @@ class Product extends Model implements HasMedia
         'price',
         'discount_price',
         'description',
+        'stock',
         'capacity',
         'package_items_count',
         'unit',

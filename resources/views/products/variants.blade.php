@@ -26,6 +26,14 @@
 
     <div class="col">
         <div class="form-group">
+            <label for="state">Stock</label>
+                <input class="form-control description char-limit variant_product_stock" name="variant_product_stock[]" id="variant_product_stock" placeholder="Please enter product in stock" maxlength="250" >
+                <small class="char-limits text-danger"></small>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="form-group">
             <label for="state">Price</label>
                 <input class="form-control description char-limit variant_product_price" name="variant_product_price[]" id="variant_product_price" placeholder="Please Enter Price" maxlength="250" >
                 <small class="char-limits text-danger"></small>

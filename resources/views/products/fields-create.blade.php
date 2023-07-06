@@ -139,6 +139,17 @@
 </div>
 <div style="flex: 50%;max-width: 50%;padding: 0 4px;" class="column">
 
+    <!-- Stock Field -->
+    <div class="form-group row ">
+        {!! Form::label('stock', trans("lang.product_stock"), ['class' => 'col-3 control-label text-right']) !!}
+        <div class="col-9">
+            {!! Form::number('stock', null,  ['class' => 'form-control','placeholder'=>  trans("lang.product_stock_placeholder"),'step'=>"any", 'min'=>"0"]) !!}
+            <div class="form-text text-muted">
+                {{ trans("lang.product_stock_help") }}
+            </div>
+        </div>
+    </div>
+
     <!-- Capacity Field -->
     <div class="form-group row ">
         {!! Form::label('capacity', trans("lang.product_capacity"), ['class' => 'col-3 control-label text-right']) !!}
@@ -505,6 +516,7 @@
                 } else {
                     $('#variant_product').val('0');
                     $('#variant_product_price').val('0');
+                    $('#variant_product_stock').val('0');
                     let value = $('#variant_product').val();
                     let price = $('#variant_product_price').val();
                     $('.variant-product-details').addClass('d-none');

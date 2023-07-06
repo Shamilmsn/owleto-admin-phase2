@@ -266,6 +266,7 @@ class ProductController extends Controller
                 $variantProductPrices = $request->input('variant_product_price');
                 $variantNames = $request->input('variant_product_name');
                 $variantProductDiscountPrices = $request->input('variant_product_discount_price');
+                $variantProductStocks = $request->input('variant_product_stock');
                 if ($variantProductPrices != NULL) {
 
                     foreach ($variantProductPrices as $key => $variantProductPrice) {
@@ -282,6 +283,7 @@ class ProductController extends Controller
                         $variantProduct->price = $variantProductPrice;
 
                         $variantProduct->discount_price = $variantProductDiscountPrices[$index];
+                        $variantProduct->stock = $variantProductStocks[$index];
                         $variantProduct->description = $request->input('description');
                         $variantProduct->capacity = $request->input('capacity');
                         $variantProduct->package_items_count =
@@ -777,12 +779,14 @@ class ProductController extends Controller
                 $index = 0;
                 $variantProductPrices = $request->input('variant_product_price');
                 $variantNames = $request->input('variant_product_name');
+                $variantProductStocks = $request->input('variant_product_stock');
                 $variantProductDiscountPrices = $request->input('variant_product_discount_price');
                 if ($variantProductPrices != NULL) {
                     foreach ($variantProductPrices as $variantProductPrice) {
                         $variantProduct = new Product();
                         $variantProduct->base_name = $request->input('base_name');
                         $variantProduct->variant_name = $variantNames[$index];
+                        $variantProduct->stock = $variantProductStocks[$index];
                         $variantProduct->price = $variantProductPrice;
                         $variantProduct->discount_price = $variantProductDiscountPrices[$index];
                         $variantProduct->capacity = $request->input('capacity');
