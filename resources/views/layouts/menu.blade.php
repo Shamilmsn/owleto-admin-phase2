@@ -538,6 +538,13 @@
     </li>
 @endcan
 
+@can('terms.index')
+    <li class="nav-item">
+        <a class="nav-link {{ Request::is('terms*') ? 'active' : '' }}"
+           href="{!! route('terms.index') !!}">@if($icons)<i class="nav-icon fa fa-lock"></i>@endif<p>Terms and Conditions</p></a>
+    </li>
+@endcan
+
 @can('vendor-locations.index')
     <li class="nav-item">
         <a class="nav-link {{ Request::is('vendor-locations*') ? 'active' : '' }}" href="{!! route('vendor-locations.index') !!}">@if($icons)
@@ -562,6 +569,7 @@
            href="{!! route('slides.index') !!}">@if($icons)<i class="nav-icon fa fa-magic"></i>@endif<p>{{trans('lang.slide_plural')}} </p></a>
     </li>
 @endcan
+
 
 
 {{--@can('app-settings')--}}
