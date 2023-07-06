@@ -187,6 +187,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('attributes', 'AttributeController')->except([
         'show'
     ]);
+    Route::resource('terms', 'TermController');
     Route::resource('attributeOptions', 'AttributeOptionController')->except([
         'show'
     ]);

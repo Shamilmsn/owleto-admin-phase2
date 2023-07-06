@@ -61,6 +61,7 @@ Route::get('settings', 'API\UserAPIController@settings');
 
 Route::resource('cities', 'API\CityAPIController');
 Route::resource('areas', 'API\CircleAPIController');
+Route::resource('terms-and-conditions', 'API\TermsAndConditionsAPIController');
 
 Route::resource('sub-categories', 'API\SubCategoryAPIController');
 
