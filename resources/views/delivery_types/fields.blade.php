@@ -77,7 +77,25 @@
       <input class="form-control"  name="end_time" type="time" id="end_time" value="{{isset($deliveryType->end_time)?$deliveryType->end_time:''}}">
     </div>
   </div>
+    <div class="form-group row ">
+      <label for="display_time_start_at" class="col-3 control-label text-right">Display Time Start At</label>
+      <div class="col-9">
+        <input class="form-control"
+               name="display_time_start_at"
+               type="time"
+               id="display_time_start_at"
+               value="{{isset($deliveryType->display_time_start_at)?$deliveryType->display_time_start_at:''}}">
+      </div>
+    </div>
 
+
+    <div class="form-group row ">
+      <label for="display_time_end_at" class="col-3 control-label text-right">Display Time End At</label>
+      <div class="col-9">
+        <input class="form-control" name="display_time_end_at" type="time" id="display_time_end_at"
+               value="{{isset($deliveryType->display_time_end_at)?$deliveryType->display_time_end_at:''}}">
+      </div>
+    </div>
   </div>
 </div>
 @if($customFields)

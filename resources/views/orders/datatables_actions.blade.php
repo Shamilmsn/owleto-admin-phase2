@@ -25,6 +25,27 @@
         <i class="fa fa-check"></i>
       </a>
   @endif
+{{--  @if(request()->user()->hasRole('admin'))--}}
+{{--      @if($order->sector_id != \App\Models\Field::TAKEAWAY)--}}
+{{--            @if(!$order->driver_id &&--}}
+{{--                $order->order_status_id != \App\Models\OrderStatus::STATUS_CANCELED &&--}}
+{{--                  $order->order_status_id != \App\Models\OrderStatus::STATUS_DELIVERED)--}}
+{{--                <a data-toggle="tooltip" data-placement="bottom"--}}
+{{--                   data-id="{{ $order->id }}" href="#" class='btn btn-link assign-driver'>--}}
+{{--                  Assign Driver--}}
+{{--                </a>--}}
+{{--            @endif--}}
+{{--      @endif--}}
+{{--      @if($order->sector_id != \App\Models\Field::TAKEAWAY)--}}
+{{--          @if($order->driver_id && !$order->is_driver_approved &&--}}
+{{--                $order->order_status_id != \App\Models\OrderStatus::STATUS_DELIVERED)--}}
+{{--            <a data-toggle="tooltip" data-placement="bottom"--}}
+{{--               data-id="{{ $order->id }}" href="#" class='btn btn-link assign-driver'>--}}
+{{--              Reassign Driver--}}
+{{--            </a>--}}
+{{--          @endif--}}
+{{--      @endif--}}
+{{--  @endif--}}
   @if(request()->user()->hasRole('admin') && $order->order_category == \App\Models\Order::VENDOR_BASED)
       @if($order->sector_id != \App\Models\Field::TAKEAWAY)
             @if(!$order->driver_id &&

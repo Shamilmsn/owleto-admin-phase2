@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\DeliveryType;
 use App\Models\Field;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 class SectorDeliveryTypeAPIController extends Controller
 {
@@ -16,9 +16,20 @@ class SectorDeliveryTypeAPIController extends Controller
      */
     public function index()
     {
+        $sectorDeliveryTypes = Field::all();
 
-        $sectorDeliveryTypes = Field::with('delivery_types')->get();
-        return $this->sendResponse($sectorDeliveryTypes->toArray(),'Sector Delivery Type retrieved successfully');
+        $sectorDeliveryTypes = $sectorDeliveryTypes->load(['delivery_types' => function ($query) {
+            $query->where(function ($query) {
+                $query->where('isTimeType', 0)
+                    ->orWhere(function ($query) {
+                        $query->whereTime('display_time_start_at', '<=', Carbon::now()->format('H:i:s'))
+                            ->whereTime('display_time_end_at', '>=', Carbon::now()->format('H:i:s'));
+                    });
+            });
+        }]);
+
+        return $this->sendResponse($sectorDeliveryTypes->toArray(),
+            'Sector Delivery Type retrieved successfully');
     }
 
     /**

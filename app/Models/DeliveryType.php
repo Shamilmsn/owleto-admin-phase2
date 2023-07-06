@@ -19,7 +19,9 @@ class DeliveryType extends Model
         'additional_amount',
         'start_time',
         'end_time',
-        'isTimeType'
+        'isTimeType',
+        'display_time_start_at',
+        'display_time_end_at'
     ];
 
     const EXPRESS = 'EXPRESS';

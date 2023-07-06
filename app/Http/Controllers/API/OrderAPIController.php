@@ -622,7 +622,7 @@ class OrderAPIController extends Controller
             return $this->sendError($e->getMessage());
         }
 
-        if ($request->is_coupon_used == true) {
+        if ($request->coupon_code) {
 
             $coupon = Coupon::where('code', $request->coupon_code)->first();
 
@@ -1121,7 +1121,7 @@ class OrderAPIController extends Controller
         }
 
         if (!$parentId) {
-            if ($request->get('is_coupon_used') == true) {
+            if ($request->coupon_code) {
                 $coupon = Coupon::where('code', $request->get('coupon_code'))->first();
 
                 $order->is_coupon_used = true;
@@ -1632,7 +1632,7 @@ class OrderAPIController extends Controller
             return $this->sendError($e->getMessage());
         }
 
-        if ($request->is_coupon_used == true) {
+        if ($request->coupon_code) {
             $coupon = Coupon::where('code', $request->coupon_code)->first();
 
             $order->is_coupon_used = true;

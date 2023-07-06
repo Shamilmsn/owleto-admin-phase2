@@ -187,6 +187,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('attributes', 'AttributeController')->except([
         'show'
     ]);
+    Route::resource('terms', 'TermController');
     Route::resource('attributeOptions', 'AttributeOptionController')->except([
         'show'
     ]);
@@ -241,7 +242,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('driver-locations', 'DriverLocationController');
     Route::get('dashboard/earning_graph', 'DashboardController@byMonth')->name('dashboard.payment');
     Route::get('update-orders-sector-id', 'OrderController@updateSectorIds');
-    Route::post('assign-driver-to-orders', 'OrderController@assignDriver');
+    Route::post('assign-driver-to-sloted-orders', 'OrderController@assignDriverToOrder');
     Route::post('assign-driver-to-express-orders', 'ExpressOrderController@assignDriver');
     Route::post('assign-driver-to-home-bakers-orders', 'HomeBakersOrderController@assignDriver');
     Route::post('assign-driver-to-pickup-orders', 'PickUpDeliveryOrderController@assignDriver');

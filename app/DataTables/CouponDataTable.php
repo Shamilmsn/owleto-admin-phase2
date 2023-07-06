@@ -36,6 +36,9 @@ class CouponDataTable extends DataTable
             ->editColumn('enabled', function ($coupon) {
                 return getBooleanColumn($coupon, 'enabled');
             })
+            ->editColumn('sector_id', function ($coupon) {
+                return optional($coupon->sector)->name;
+            })
             ->editColumn('discount', function ($coupon) {
                 if($coupon['discount_type'] == 'percent'){
                     return $coupon['discount'] . "%";
@@ -79,6 +82,11 @@ class CouponDataTable extends DataTable
             [
                 'data' => 'enabled',
                 'title' => trans('lang.coupon_enabled'),
+
+            ],
+            [
+                'data' => 'sector_id',
+                'title' => 'Sector',
 
             ],
             [

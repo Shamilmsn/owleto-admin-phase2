@@ -5,6 +5,7 @@ namespace App\DataTables;
 use App\Models\Field;
 use App\Models\Market;
 use App\Models\Order;
+use App\Models\OrderStatus;
 use App\Models\PaymentMethod;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -120,6 +121,13 @@ class OrderDataTable extends DataTable
             ->editColumn('driver_id', function ($order) {
                 return optional($order->driver)->name;
             })
+            ->addColumn('checkbox', function ($order) {
+                if($order->order_status_id == OrderStatus::STATUS_DELIVERED ) {
+                    return '';
+                }
+                return '<input class="ids-all-select" type="checkbox" name="ids[]" 
+                data-id="' . $order->id . '">';
+            })
 //            ->editColumn('active', function ($product) {
 //                return getBooleanColumn($product, 'active');
 //            })
@@ -132,7 +140,7 @@ class OrderDataTable extends DataTable
             ->editColumn('driver_commission_amount',function ($order){
                 return $order->driver_commission_amount.'<p class="small">Distance : '.round($order->driver_total_distance,3).'</p>';
             })
-            ->rawColumns(array_merge($columns,['active','updated_at', 'action']));
+            ->rawColumns(array_merge($columns,['active','updated_at', 'action', 'checkbox']));
 
         return $dataTable;
     }
@@ -356,6 +364,15 @@ class OrderDataTable extends DataTable
                 'title' => 'Action',
                 'searchable' => true,
                 'orderable' => true,
+            ],
+            [
+                'data' => 'checkbox',
+                'name' => 'checkbox',
+                'title' => '<div class="d-flex">
+                        <input type="checkbox" id="select-all">
+                        <button class="btn btn-primary btn-sm ml-2"
+                         id="driver-assign">Assign Driver</button>
+                    </div>'
             ]
             /* Column::make('id')->name('id')->title('#Booking'),
              Column::make('add your columns'),

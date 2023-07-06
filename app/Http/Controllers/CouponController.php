@@ -11,6 +11,7 @@ use App\DataTables\CouponDataTable;
 use App\Http\Requests;
 use App\Http\Requests\CreateCouponRequest;
 use App\Http\Requests\UpdateCouponRequest;
+use App\Models\Field;
 use App\Repositories\CouponRepository;
 use App\Repositories\CustomFieldRepository;
 use App\Repositories\DiscountableRepository;
@@ -84,6 +85,7 @@ class CouponController extends Controller
     {
         $this->productRepository->pushCriteria(new ProductsOfUserCriteria(auth()->id()));
 //        $product = $this->productRepository->groupedByMarkets();
+        $sectors = Field::pluck('name', 'id');
 
         $this->marketRepository->pushCriteria(new MarketsOfUserCriteria(auth()->id()));
         $this->marketRepository->pushCriteria(new ActiveCriteria());
@@ -100,7 +102,14 @@ class CouponController extends Controller
             $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->couponRepository->model());
             $html = generateCustomField($customFields);
         }
-        return view('coupons.create')->with("customFields", isset($html) ? $html : false)->with("market", $market)->with("category", $category)->with("productsSelected", $productsSelected)->with("marketsSelected", $marketsSelected)->with("categoriesSelected", $categoriesSelected);
+        return view('coupons.create')
+            ->with("customFields", isset($html) ? $html : false)
+            ->with("sectors", $sectors)
+            ->with("market", $market)
+            ->with("category", $category)
+            ->with("productsSelected", $productsSelected)
+            ->with("marketsSelected", $marketsSelected)
+            ->with("categoriesSelected", $categoriesSelected);
     }
 
     /**
@@ -177,7 +186,7 @@ class CouponController extends Controller
         $this->couponRepository->pushCriteria(new CouponsOfUserCriteria(auth()->id()));
 
         $coupon = $this->couponRepository->all()->firstWhere('id', '=', $id);
-
+        $sectors = Field::pluck('name', 'id');
         if (empty($coupon)) {
             Flash::error(__('lang.not_found', ['operator' => __('lang.coupon')]));
 
@@ -203,7 +212,15 @@ class CouponController extends Controller
             $html = generateCustomField($customFields, $customFieldsValues);
         }
 
-        return view('coupons.edit')->with('coupon', $coupon)->with("customFields", isset($html) ? $html : false)->with("market", $market)->with("category", $category)->with("productsSelected", $productsSelected)->with("marketsSelected", $marketsSelected)->with("categoriesSelected", $categoriesSelected);
+        return view('coupons.edit')
+            ->with('sectors', $sectors)
+            ->with('coupon', $coupon)
+            ->with("customFields", isset($html) ? $html : false)
+            ->with("market", $market)
+            ->with("category", $category)
+            ->with("productsSelected", $productsSelected)
+            ->with("marketsSelected", $marketsSelected)
+            ->with("categoriesSelected", $categoriesSelected);
     }
 
     /**

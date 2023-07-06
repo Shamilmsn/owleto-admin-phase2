@@ -15,7 +15,8 @@ class DeliveryTypesAPIController extends Controller
      */
     public function index(Request $request)
     {
-        $deliveryTypes = DeliveryType::query()->with('sectorDeliveryTypes');
+        $deliveryTypes = DeliveryType::query()
+            ->with('sectorDeliveryTypes');
 //
         $sectorId = $request->sector_id;
 
