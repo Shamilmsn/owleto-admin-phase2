@@ -52,7 +52,11 @@ class SubCategoryAPIController extends Controller
         ]);
 
         $productsSubCategoryIds = Product::where('category_id', $request->category_id)
-            ->where('market_id', $request->market_id)
+            ->where(function ($query) use ($request) {
+                if ($request->market_id) {
+                    $query->where('market_id', $request->market_id);
+                }
+            })
             ->whereNotNull('sub_category_id')
             ->pluck('sub_category_id');
 
