@@ -1121,7 +1121,7 @@ class OrderAPIController extends Controller
         }
 
         if (!$parentId) {
-            if ($request->coupon_code) {
+            if ($request->get('coupon_code')) {
                 $coupon = Coupon::where('code', $request->get('coupon_code'))->first();
 
                 $order->is_coupon_used = true;
