@@ -67,6 +67,7 @@ class ProductAPIController extends Controller
      */
     public function index(Request $request)
     {
+        info('PRODUCTS' . $request);
 
         try {
             $this->productRepository->pushCriteria(new RequestCriteria($request));
@@ -132,6 +133,8 @@ class ProductAPIController extends Controller
      */
     public function categories(Request $request)
     {
+        info('CATEGORIES' . $request);
+
 //        $this->productRepository->skipCache();
 
         try {

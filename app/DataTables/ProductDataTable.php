@@ -143,6 +143,12 @@ class ProductDataTable extends DataTable
     {
         $columns = [
             [
+                'data' => 'id',
+                'title' => trans('lang.id'),
+                'searchable' => true,
+
+            ],
+            [
                 'data' => 'base_name',
                 'title' => trans('lang.product_name'),
                 'searchable' => true,
