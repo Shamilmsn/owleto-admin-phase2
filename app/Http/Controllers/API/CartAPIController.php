@@ -43,6 +43,7 @@ class CartAPIController extends Controller
      */
     public function index(Request $request)
     {
+        info("REACHED");
         try{
             $this->cartRepository->pushCriteria(new RequestCriteria($request));
             $this->cartRepository->pushCriteria(new LimitOffsetCriteria($request));

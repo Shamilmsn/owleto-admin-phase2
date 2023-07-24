@@ -183,6 +183,7 @@ class OrderAPIController extends Controller
 
     public function store(Request $request, ProductWiseOrderService $orderService)
     {
+        info("HERE");
         info($request);
         if (isset($request->payment_method_id)) {
 
