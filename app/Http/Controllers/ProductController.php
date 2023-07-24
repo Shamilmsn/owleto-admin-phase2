@@ -894,6 +894,8 @@ class ProductController extends Controller
         } catch (ValidatorException $e) {
             Flash::error($e->getMessage());
         }
+        info("UPID PRODUCT : " . $product);
+
 
 
         Flash::success(__('lang.updated_successfully', ['operator' => __('lang.product')]));
