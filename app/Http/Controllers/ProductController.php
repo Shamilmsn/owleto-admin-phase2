@@ -399,6 +399,8 @@ class ProductController extends Controller
             Flash::error($e->getMessage());
         }
 
+        info("STORE PRODUCT : " . $product);
+
 
         Flash::success(__('lang.saved_successfully', ['operator' => __('lang.product')]));
 
@@ -474,6 +476,7 @@ class ProductController extends Controller
     public function edit($id)
     {
         $product = $this->productRepository->findWithoutFail($id);
+        info("EDIT PRODUCT : " . $product);
         $this->productRepository->pushCriteria(new ProductsOfUserCriteria(auth()->id()));
         if (empty($product)) {
             Flash::error(__('lang.not_found', ['operator' => __('lang.product')]));
