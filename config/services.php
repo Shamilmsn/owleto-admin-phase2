@@ -51,6 +51,7 @@ return [
         'client_id' => '527129559488-roolg8aq110p8r1q952fqa9tm06gbloe.apps.googleusercontent.com',         // Your google Client ID
         'client_secret' => 'FpIi8SLgc69ZWodk-xHaOrxn', // Your google Client Secret
         'redirect' => 'https://owleto.com/public/login/google/callback',
+        'map_api_key' => env('GOOGLE_MAP_API_KEY')
     ],
 
 

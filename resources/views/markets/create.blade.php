@@ -562,7 +562,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/additional-methods.js"> </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-locationpicker/0.1.12/locationpicker.jquery.js"></script>
-<script type="text/javascript" src='https://maps.google.com/maps/api/js?libraries=places&key=AIzaSyAGFx1JJtA0cyxFhlodCO2ilWp-JFMZEVc' ></script>
+<script type="text/javascript" src='https://maps.google.com/maps/api/js?libraries=places&key={{ config('services.google.map_api_key') }}' ></script>
 <script type="text/javascript">
     Dropzone.autoDiscover = false;
     var dropzoneFields = [];
