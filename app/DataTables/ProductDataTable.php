@@ -85,14 +85,14 @@ class ProductDataTable extends DataTable
         if (auth()->user()->hasRole('admin')) {
 
             $user = auth()->user();
-
-                return $model->newQuery()
-                    ->with("market")
-                    ->with("category")
-                    ->join("markets", "markets.id", "=", "products.market_id")
+            return $model->newQuery()
+                ->with("market")
+                ->with("category")
+                ->whereHas('market')
+                ->rightjoin("markets", "markets.id", "=", "products.market_id")
 //                ->where("markets.city_id", $user->city_id)
-                ->select('products.*')
-                ->orderBy('products.updated_at','desc');
+            ->select('products.*')
+            ->orderBy('products.updated_at','desc');
 
         } else if (auth()->user()->hasRole('vendor_owner')) {
             return $model->newQuery()->with("market")->with("category")

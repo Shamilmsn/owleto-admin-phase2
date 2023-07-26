@@ -67,7 +67,6 @@ class ProductAPIController extends Controller
      */
     public function index(Request $request)
     {
-        info('PRODUCTS' . $request);
 
         try {
             $this->productRepository->pushCriteria(new RequestCriteria($request));
@@ -93,6 +92,7 @@ class ProductAPIController extends Controller
                 $now = Carbon::now()->format('Y-m-d H:i:s');
 
                 $products = $this->productRepository
+                    ->whereHas('market', function ($query) {})
                     ->where('is_enabled', true)
                     ->where('deliverable', 1)
                     ->where('is_approved', true)
@@ -104,6 +104,7 @@ class ProductAPIController extends Controller
             } else {
 
                 $products = $this->productRepository
+                    ->whereHas('market', function ($query) {})
                     ->where('is_enabled', true)
                     ->where('deliverable', 1)
                     ->where('is_approved', true)
@@ -133,8 +134,6 @@ class ProductAPIController extends Controller
      */
     public function categories(Request $request)
     {
-        info('CATEGORIES' . $request);
-
 //        $this->productRepository->skipCache();
 
         try {
@@ -146,6 +145,7 @@ class ProductAPIController extends Controller
             $products = $this->productRepository->pushCriteria(new ProductsOfCategoriesCriteria($request));
 
             $products = $this->productRepository
+                ->whereHas('market', function ($query) {})
                 ->where('is_enabled', true)
                 ->where('deliverable', 1)
                 ->where('is_approved', true)
@@ -204,6 +204,8 @@ class ProductAPIController extends Controller
             if ($request->featured == 1) {
                 $products = $products->where('featured', true);
             }
+
+            info($products->count());
 
             $products = $products->get();
 
