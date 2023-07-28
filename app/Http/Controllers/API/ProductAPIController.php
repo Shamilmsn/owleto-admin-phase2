@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use Flash;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use InfyOm\Generator\Criteria\LimitOffsetCriteria;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Exceptions\RepositoryException;
@@ -123,6 +124,25 @@ class ProductAPIController extends Controller
         }
 
         return $this->sendResponse($products->toArray(), 'Products retrieved successfully');
+    }
+
+    public function autocomplete(Request $request)
+    {
+        try {
+            $products = DB::table('products')->select('id')
+                ->selectRaw('CONCAT(COALESCE(base_name, ""), " ", COALESCE(variant_name, "")) AS name')
+                ->where(function ($query) use ($request) {
+                    if ($request->get('query')) {
+                        $query->where('base_name', 'LIKE', '%' . $request->get('query') . '%')
+                            ->orWhere('base_name', 'LIKE', '%' . $request->get('query') . '%');
+                    }
+                })
+                ->paginate(10);
+        } catch (RepositoryException $e) {
+            return $this->sendError($e->getMessage());
+        }
+
+        return $this->sendResponse($products->toArray(), 'Products autocomplete successfully');
     }
 
     /**

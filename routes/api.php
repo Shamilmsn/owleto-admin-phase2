@@ -72,6 +72,7 @@ Route::resource('categories', 'API\CategoryAPIController')->except(['edit','upda
 Route::resource('markets', 'API\MarketAPIController');
 
 Route::resource('faq_categories', 'API\FaqCategoryAPIController');
+Route::get('products/autocomplete', 'API\ProductAPIController@autocomplete');
 Route::get('products/categories', 'API\ProductAPIController@categories');
 Route::resource('products', 'API\ProductAPIController');
 Route::resource('galleries', 'API\GalleryAPIController');
