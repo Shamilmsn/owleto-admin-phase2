@@ -175,27 +175,6 @@ class ProductAPIController extends Controller
                             ->orWhere('product_type',Product::STANDARD_PRODUCT);
                 });
 
-
-//            $products = $this->productRepository->with('market')
-//                ->where('is_enabled', true)
-////                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
-//                ->where('deliverable', 1)
-//                ->where('is_approved', true)
-//                ->Where(function ($query) {
-//                    $query->where('is_variant_display_product', true)
-//                        ->orWhere('product_type',Product::STANDARD_PRODUCT);
-//                });
-
-//            $products = $this->productRepository
-//                ->where('is_enabled', true)
-//                ->where('deliverable', 1)
-//                ->where('is_approved', true)
-//                ->where('product_type', '!=', Product::VARIANT_BASE_PRODUCT)
-//                ->Where(function ($query) {
-//                    $query->where('is_variant_display_product', true);
-////                        ->orWhere('product_type',Product::VARIANT_BASE_PRODUCT);
-//                });
-
             if ($request->search_name) {
                 $products = $products->where('base_name', 'like', '%' . $request->search_name . '%')
                     ->where('base_name', 'like', '%' . $request->search_name . '%')
@@ -210,7 +189,11 @@ class ProductAPIController extends Controller
                 $products = $products->where('market_id', $request->market_id);
             }
 
-            if ($request->Is_flash_sale_product) {
+            if ($request->category_id) {
+                $products = $products->where('category_id', $request->category_id);
+            }
+
+            if ($request->is_flash_sale_product) {
 
                 $now = Carbon::now()->format('Y-m-d H:i:s');
                 $products = $products
@@ -225,9 +208,7 @@ class ProductAPIController extends Controller
                 $products = $products->where('featured', true);
             }
 
-            info($products->count());
-
-            $products = $products->get();
+            $products = $products->paginate(10);
 
         } catch (RepositoryException $e) {
             return $this->sendError($e->getMessage());
