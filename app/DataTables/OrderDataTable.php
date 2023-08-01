@@ -163,9 +163,9 @@ class OrderDataTable extends DataTable
                 ->with("market")
                 ->with('payment')
                 ->where('sector_id', '!=', Field::HOME_COOKED_FOOD)
-                ->whereHas('deliveryType', function ($query) {
-                    $query->where('isTimeType', 1);
-                })
+//                ->whereHas('deliveryType', function ($query) {
+//                    $query->where('isTimeType', 1);
+//                })
                 ->where(function ($query) {
                     $query->where(function ($q) {
                         $q->where('type', Order::PRODUCT_TYPE)
