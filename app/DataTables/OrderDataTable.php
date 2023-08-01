@@ -122,6 +122,9 @@ class OrderDataTable extends DataTable
                 return optional($order->driver)->name;
             })
             ->addColumn('checkbox', function ($order) {
+                if ($order->order_category != \App\Models\Order::VENDOR_BASED) {
+                    return '';
+                }
                 if($order->order_status_id == OrderStatus::STATUS_DELIVERED ) {
                     return '';
                 }
