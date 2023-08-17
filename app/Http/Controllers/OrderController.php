@@ -764,7 +764,7 @@ OrderController extends Controller
 
         foreach ($orderIds as $orderId) {
 
-            $order = Order::find($orderId);
+            $order = Order::findOrFail($orderId);
             $slotedDeliveryHistory = SlotedDeliveryDriverHistory::query()
                 ->where('order_id', $orderId)
                 ->first();
