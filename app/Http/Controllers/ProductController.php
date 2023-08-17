@@ -218,7 +218,11 @@ class ProductController extends Controller
                     $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
                 }
 
-                $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
+                $owletoCommissionAmount = 0;
+                if ($owletoCommissionPercent > 0) {
+                    $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
+                }
+
                 $eightyPercentageOfCommissionAmount = (18/100)*$owletoCommissionAmount;
                 $product->owleto_commission_amount = $owletoCommissionAmount;
                 $product->eighty_percentage_of_commission_amount =
@@ -327,7 +331,12 @@ class ProductController extends Controller
                                 $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
                             }
 
-                            $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
+
+                            $owletoCommissionAmount = 0;
+                            if ($owletoCommissionPercent > 0) {
+                                $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
+                            }
+
                             $eightyPercentageOfCommissionAmount = (18/100)*$owletoCommissionAmount;
                             $product->owleto_commission_amount = $owletoCommissionAmount;
                             $product->eighty_percentage_of_commission_amount =
@@ -659,7 +668,11 @@ class ProductController extends Controller
                     $tcsAmount = ($tcsPercentage / 100) * $priceExcludingtax;
                 }
 
-                $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
+
+                $owletoCommissionAmount = 0;
+                if ($owletoCommissionPercent > 0) {
+                    $owletoCommissionAmount = ($owletoCommissionPercent / 100) * $price;
+                }
                 $eightyPercentageOfCommissionAmount = (18 / 100) * $owletoCommissionAmount;
                 $product->owleto_commission_amount = $owletoCommissionAmount;
                 $product->eighty_percentage_of_commission_amount =
