@@ -249,6 +249,7 @@ Route::middleware('auth')->group(function () {
     Route::post('assign-driver-to-package-orders', 'PackageOrderController@assignDriver');
     Route::post('assign-driver-to-todays-package-orders', 'TodayPackageOrderController@assignDriver');
     Route::post('assign-driver-to-order-request-orders', 'OrderRequestOrderController@assignDriver');
+    Route::post('assign-driver-to-orders', 'OrderController@assignDriver');
     Route::post('add-to-featured-products', 'ProductController@addToFeatured');
     Route::post('remove-from-featured-products', 'ProductController@removeFromFeatured');
     Route::resource('todays-package-orders', 'TodayPackageOrderController');
