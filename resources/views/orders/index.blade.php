@@ -203,6 +203,13 @@
             $('#drivers-modal').modal('show');
           });
 
+          $('#tbl-order').on('click', '.assign-single-driver', function (e) {
+              e.preventDefault();
+              var orderId = $(this).attr('data-id');
+              $('#order_id').val(orderId);
+              $('#single-driver-modal').modal('show');
+          });
+
           $('#tbl-order').on('click', '.collect-cash', function (e){
               e.preventDefault();
               var orderId = $(this).attr('data-id');

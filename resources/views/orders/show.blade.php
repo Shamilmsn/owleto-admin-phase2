@@ -149,7 +149,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <select data-plugin="select2" class="form-control" name="driver_id">
+                        <select data-plugin="select2" class="form-control" name="single_driver_id">
                             @foreach($drivers as $driver)
                                 <option value="{{$driver->user->id}}">{{$driver->user->name}}</option>
                             @endforeach

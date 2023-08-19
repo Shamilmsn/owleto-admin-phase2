@@ -52,7 +52,7 @@
                 $order->order_status_id != \App\Models\OrderStatus::STATUS_CANCELED &&
                   $order->order_status_id != \App\Models\OrderStatus::STATUS_DELIVERED)
                 <a data-toggle="tooltip" data-placement="bottom"
-                   data-id="{{ $order->id }}" href="#" class='btn btn-link assign-driver'>
+                   data-id="{{ $order->id }}" href="#" class='btn btn-link assign-single-driver'>
                   Assign Driver
                 </a>
             @endif

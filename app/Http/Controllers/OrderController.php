@@ -660,7 +660,7 @@ OrderController extends Controller
             return redirect(route('orders.index'));
         }
 
-        $driverId = $request->driver_id;
+        $driverId = $request->single_driver_id;
         $driver = Driver::where('user_id', $driverId)->first();
 
 //        if (!$driver->available) {
