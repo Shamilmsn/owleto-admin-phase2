@@ -1040,7 +1040,7 @@ class OrderAPIController extends Controller
                 //    Notification::send($order->productOrderRequestOrder->temporaryOrderRequest->orderRequest->market->users, new NewOrder($order));
             }
 
-//            if (!$parentId) {
+            if (!$parentId) {
 
                 try {
                     $currentUser = User::findOrFail($request->get('user_id'));
@@ -1102,7 +1102,7 @@ class OrderAPIController extends Controller
                 } catch (\Exception $e) {
 
                 }
-//            }
+            }
 
 
             if ($request->get('addons')) {

@@ -32,7 +32,7 @@ class ProductWiseOrderService
                     info("PRODUCT : " . json_encode($product));
                     $products[] = $product;
                     $tax += $product_data->tax;
-                    $subTotal += $product_data->price;
+                    $subTotal += $product_data->price * $product['quantity'];
                 }
             }
 
