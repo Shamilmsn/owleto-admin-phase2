@@ -137,6 +137,7 @@ class OrderAPIController extends Controller
         $orders = Order::with('user', 'productOrders', 'productOrders.product', 'driver',
             'productOrders.order_addons', 'productOrders.options', 'orderStatus', 'deliveryAddress', 'payment', 'market', 'deliveryType')
             ->where('type', $type)
+            ->where('order_category', Order::VENDOR_BASED)
             ->where('user_id', $request->user_id);
 
         if ($request->search) {
