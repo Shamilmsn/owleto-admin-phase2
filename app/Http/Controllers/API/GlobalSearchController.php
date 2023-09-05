@@ -32,12 +32,14 @@ class GlobalSearchController extends Controller
                ->with('field')
                ->where('base_name', 'LIKE', '%' . $request->get('query') . '%')
                ->orWhere('variant_name', 'LIKE', '%' . $request->get('query') . '%')
+               ->limit(25)
                ->get();
            $data['products'] = $products;
 
            $market = Market::query()
                ->with('mediaProfilePic', 'mediaCoverPic', 'images')
                ->where('name', 'LIKE', "%" . $request->input('query'). "%")
+               ->limit(25)
                ->get();
 
            $data['markets'] = $market;
