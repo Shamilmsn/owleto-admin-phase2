@@ -29,13 +29,13 @@ class GlobalSearchController extends Controller
     {
         try{
            $products = Product::query()
-               ->select('id', DB::raw('CONCAT(base_name, " ", variant_name) AS name'))
-               ->where(DB::raw('CONCAT(base_name, " ", variant_name)'), 'LIKE', "%" . $request->input('query'). "%")
+               ->with('field')
+               ->where('base_name', 'LIKE', '%' . $request->get('query') . '%')
+               ->orWhere('variant_name', 'LIKE', '%' . $request->get('query') . '%')
                ->get();
            $data['products'] = $products;
 
            $market = Market::query()
-               ->select('id', 'name')
                ->where('name', 'LIKE', "%" . $request->input('query'). "%")
                ->get();
 
