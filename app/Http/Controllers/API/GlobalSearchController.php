@@ -36,6 +36,7 @@ class GlobalSearchController extends Controller
            $data['products'] = $products;
 
            $market = Market::query()
+               ->with('mediaProfilePic', 'mediaCoverPic', 'images')
                ->where('name', 'LIKE', "%" . $request->input('query'). "%")
                ->get();
 
