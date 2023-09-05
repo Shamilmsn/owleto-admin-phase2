@@ -36,6 +36,7 @@ class GlobalSearchController extends Controller
 
            $market = Market::query()
                ->select('id', 'name')
+               ->where('name', 'LIKE', "%" . $request->input('query'). "%")
                ->get();
 
            $data['markets'] = $market;
