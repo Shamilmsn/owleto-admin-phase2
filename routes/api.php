@@ -75,6 +75,7 @@ Route::resource('faq_categories', 'API\FaqCategoryAPIController');
 Route::get('products/autocomplete', 'API\ProductAPIController@autocomplete');
 Route::get('products/categories', 'API\ProductAPIController@categories');
 Route::resource('products', 'API\ProductAPIController');
+Route::get('global-search', 'API\GlobalSearchController@index');
 Route::resource('galleries', 'API\GalleryAPIController');
 Route::resource('product_reviews', 'API\ProductReviewAPIController');
 
