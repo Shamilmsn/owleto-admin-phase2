@@ -30,7 +30,7 @@ class GlobalSearchController extends Controller
         try{
            $products = Product::query()
                ->select('id', DB::raw('CONCAT(base_name, " ", variant_name) AS name'))
-               ->where(DB::raw('CONCAT(first_name, " ", last_name)'), 'LIKE', "%" . $request->input('query'). "%")
+               ->where(DB::raw('CONCAT(base_name, " ", variant_name)'), 'LIKE', "%" . $request->input('query'). "%")
                ->get();
            $data['products'] = $products;
 
