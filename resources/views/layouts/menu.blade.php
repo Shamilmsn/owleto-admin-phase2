@@ -216,6 +216,8 @@
                             <i class="nav-icon fa fa-shopping-bag"></i>
                         @endif
                         <p>Express Orders</p>
+                            @if(getPendingExpressOrdersCount()>0) <span class="badge badge-pill badge-success driver-request-badge" id="pending_order_count">{{ getPendingExpressOrdersCount() }}</span>@endif
+
                     </a>
                 </li>
             @endcan

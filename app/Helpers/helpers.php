@@ -7,6 +7,7 @@
  *
  */
 
+use App\Models\DeliveryType;
 use App\Models\Market;
 use Illuminate\Support\Facades\Auth;
 use InfyOm\Generator\Common\GeneratorField;
@@ -757,4 +758,14 @@ function isMerchantHasManualOrders()
 function getPendingOrdersCount()
 {
     return \App\Models\Order::query()->whereNull('parent_id')->where('order_status_id', \App\Models\Order::STATUS_RECEIVED)->count();
+}
+
+function getPendingExpressOrdersCount()
+{
+    return \App\Models\Order::query()
+        ->whereNull('parent_id')
+        ->whereHas('deliveryType', function ($query) {
+            $query->where('id', DeliveryType::TYPE_EXPRESS);
+        })
+        ->where('order_status_id', \App\Models\Order::STATUS_RECEIVED)->count();
 }
