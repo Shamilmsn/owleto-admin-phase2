@@ -49,13 +49,18 @@ class OtpService
             $messagingServiceSid = config('services.twilio.twilio_msg_service_id');
             $twilio = new Client($sid, $token);
 
-            $message = $twilio->messages
-                ->create($phoneNumber,
-                    array(
-                        "messagingServiceSid" => $messagingServiceSid,
-                        "body" => "Hello, Please login at Owleto with this OTP : ".$otp->code
-                    )
-                );
+            try {
+                $message = $twilio->messages
+                    ->create($phoneNumber,
+                        array(
+                            "messagingServiceSid" => $messagingServiceSid,
+                            "body" => "Hello, Please login at Owleto with this OTP : ".$otp->code
+                        )
+                    );
+            } catch (\Exception $exception) {
+                info($exception);
+            }
+
         }
 
         return ['token' => $otp->getToken()];
