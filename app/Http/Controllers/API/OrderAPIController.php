@@ -194,6 +194,7 @@ class OrderAPIController extends Controller
                 $productIds = array_unique(collect($request->get('products'))->pluck('product_id')->toArray());
                 $vendors = Product::whereIn('id', $productIds)->pluck('market_id')->toArray();
                 info("VENDOR IDS : " . json_encode($vendors));
+                $vendors = array_unique($vendors);
             }
 
             $mainData = [];
