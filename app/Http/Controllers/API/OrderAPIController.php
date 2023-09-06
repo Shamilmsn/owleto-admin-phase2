@@ -1006,7 +1006,7 @@ class OrderAPIController extends Controller
 
             info("PARENT : " . $parentId);
 
-            if (!$parentId) {
+            if ($order->order_category == Order::VENDOR_BASED) {
                 $payment = $this->paymentRepository->create([
                     "user_id" => $input['user_id'],
                     "order_id" => $order->id,
@@ -1043,7 +1043,7 @@ class OrderAPIController extends Controller
                 //    Notification::send($order->productOrderRequestOrder->temporaryOrderRequest->orderRequest->market->users, new NewOrder($order));
             }
 
-            if (!$parentId) {
+            if ($order->order_category == Order::VENDOR_BASED) {
 
                 try {
                     $currentUser = User::findOrFail($request->get('user_id'));
@@ -1125,7 +1125,7 @@ class OrderAPIController extends Controller
             return $this->sendError($e->getMessage());
         }
 
-        if (!$parentId) {
+        if ($order->order_category == Order::VENDOR_BASED) {
             if ($request->get('coupon_code')) {
                 $coupon = Coupon::where('code', $request->get('coupon_code'))->first();
 
