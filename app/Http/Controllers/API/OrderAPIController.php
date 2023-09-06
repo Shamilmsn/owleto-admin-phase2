@@ -193,6 +193,7 @@ class OrderAPIController extends Controller
             if (count($request->get('products')) > 0) {
                 $productIds = array_unique(collect($request->get('products'))->pluck('product_id')->toArray());
                 $vendors = Product::whereIn('id', $productIds)->pluck('market_id')->toArray();
+                info("VENDOR IDS : " . $vendors);
             }
 
             $mainData = [];
