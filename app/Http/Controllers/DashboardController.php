@@ -69,7 +69,7 @@ class DashboardController extends Controller
 //                    ->whereIn('payment_status', ['PENDING', 'SUCCESS']);
 //            })->count();
 
-        $ordersCount = Order::where('payment_status','SUCCESS')->count();
+        $ordersCount = Order::where('status', Order::STATUS_DELIVERED)->count();
 
         $marketUsers = $this->userRepository->get();
         $membersCount = $marketUsers->count();
@@ -153,7 +153,6 @@ class DashboardController extends Controller
                 })->sum('commission_amount');
 
 
-
             $sector[$field->name] += PackageOrder::query()
                 ->whereHas('order', function ($order) {
                     $order->where('payment_status', 'SUCCESS');
@@ -170,7 +169,7 @@ class DashboardController extends Controller
         $sector['Total Delivery Fee'] = $totalDeliveryFee;
 
         return view('dashboard.index')
-            ->with("orders",$orders)
+            ->with("orders", $orders)
             ->with("ajaxEarningUrl", $ajaxEarningUrl)
             ->with("ordersCount", $ordersCount)
             ->with("marketsCount", $marketsCount)
