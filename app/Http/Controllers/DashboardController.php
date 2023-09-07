@@ -69,7 +69,7 @@ class DashboardController extends Controller
 //                    ->whereIn('payment_status', ['PENDING', 'SUCCESS']);
 //            })->count();
 
-        $ordersCount = Order::where('status', Order::STATUS_DELIVERED)->count();
+        $ordersCount = Order::where('order_status_id', Order::STATUS_DELIVERED)->count();
 
         $marketUsers = $this->userRepository->get();
         $membersCount = $marketUsers->count();
