@@ -2,6 +2,7 @@
 
 namespace App\DataTables;
 
+use App\Models\DeliveryType;
 use App\Models\Field;
 use App\Models\Market;
 use App\Models\Order;
@@ -166,6 +167,9 @@ class OrderDataTable extends DataTable
                 ->with("market")
                 ->with('payment')
                 ->where('sector_id', '!=', Field::HOME_COOKED_FOOD)
+                ->whereHas('deliveryType', function ($query) {
+                    $query->where('id', '!=', DeliveryType::TYPE_EXPRESS);
+                })
 //                ->whereHas('deliveryType', function ($query) {
 //                    $query->where('isTimeType', 1);
 //                })
