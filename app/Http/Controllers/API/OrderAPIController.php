@@ -148,6 +148,10 @@ class OrderAPIController extends Controller
             });
         }
 
+        if ($request->order_id) {
+            $orders = $orders->where('id', $request->order_id);
+        }
+
         $orders = $orders->orderBy('created_at', 'desc')->get();
 
         $userOrders = [];
