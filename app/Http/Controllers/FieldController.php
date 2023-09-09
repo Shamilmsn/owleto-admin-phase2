@@ -77,7 +77,10 @@ private $marketRepository;
                 $customFields = $this->customFieldRepository->findByField('custom_field_model', $this->fieldRepository->model());
                 $html = generateCustomField($customFields);
             }
+
+        $field = null;
         return view('fields.create')->with("customFields", isset($html) ? $html : false)
+            ->with('field', $field)
 //            ->with("market",$market)
 //            ->with("marketsSelected",$marketsSelected)
             ->with( "deliveryTypes", $deliveryTypes)

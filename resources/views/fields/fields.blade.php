@@ -91,7 +91,7 @@
 {{--    <div class="form-text text-muted">{{ trans("lang.field_markets_help") }}</div>--}}
 {{--  </div>--}}
 {{--</div>--}}
- @if($field->id != 9)
+ @if($field && $field->id != 9)
     <div class="form-group row ">
         {!! Form::label('deliveryTypes[]', trans("lang.field_delivery_types"),['class' => 'col-3 control-label text-right']) !!}
         <div class="col-9">

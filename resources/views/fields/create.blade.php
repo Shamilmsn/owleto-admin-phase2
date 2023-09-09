@@ -20,12 +20,12 @@
         </h1>
       </div><!-- /.col -->
       <div class="col-sm-6">
-{{--        <ol class="breadcrumb float-sm-right">--}}
-{{--          <li class="breadcrumb-item"><a href="{{url('/dashboard')}}"><i class="fa fa-dashboard"></i> {{trans('lang.dashboard')}}</a></li>--}}
-{{--          <li class="breadcrumb-item"><a href="{!! route('fields.index') !!}">{{trans('lang.field_plural')}}</a>--}}
-{{--          </li>--}}
-{{--          <li class="breadcrumb-item active">{{trans('lang.field_create')}}</li>--}}
-{{--        </ol>--}}
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"><a href="{{url('/dashboard')}}"><i class="fa fa-dashboard"></i> {{trans('lang.dashboard')}}</a></li>
+          <li class="breadcrumb-item"><a href="{!! route('fields.index') !!}">{{trans('lang.field_plural')}}</a>
+          </li>
+          <li class="breadcrumb-item active">{{trans('lang.field_create')}}</li>
+        </ol>
       </div><!-- /.col -->
     </div><!-- /.row -->
   </div><!-- /.container-fluid -->
