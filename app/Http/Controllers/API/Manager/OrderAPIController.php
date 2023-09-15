@@ -704,7 +704,12 @@ class OrderAPIController extends Controller
 
             $input['order_status_id'] = Order::STATUS_DRIVER_ASSIGNED;
 
-            $references = $this->database->getReference($this->table)->getValue();
+            $references = [];
+            try {
+                $references = $this->database->getReference($this->table)->getValue();
+            } catch (\Exception $exception) {
+
+            }
 
             foreach ($references as $reference) {
 
