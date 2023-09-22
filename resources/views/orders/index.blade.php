@@ -200,7 +200,7 @@
             e.preventDefault();
             var orderId = $(this).attr('data-id');
             $('#order_id').val(orderId);
-            $('#drivers-modal').modal('show');
+              $('#single-driver-modal').modal('show');
           });
 
           $('#tbl-order').on('click', '.assign-single-driver', function (e) {
