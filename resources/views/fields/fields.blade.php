@@ -111,6 +111,16 @@
         </div>
     </div>
 
+    <div class="form-group row ">
+        {!! Form::label('is_product_based', 'is product based?',['class' => 'col-3 control-label text-right']) !!}
+        <div class="checkbox icheck">
+            <label class="col-9 ml-2 form-check-inline">
+                {!! Form::hidden('is_product_based', 0) !!}
+                {!! Form::checkbox('is_product_based', 1, null) !!}
+            </label>
+        </div>
+    </div>
+
 </div>
 @if($customFields)
 <div class="clearfix"></div>
