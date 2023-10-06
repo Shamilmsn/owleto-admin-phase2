@@ -136,7 +136,7 @@ class OrderDataTable extends DataTable
 //                return getBooleanColumn($product, 'active');
 //            })
             ->addColumn('vendor_payment',function ($order){
-                return $order->sub_total - $order->owleto_commission_amount;
+                return round($order->market_balance);
             })
             ->addColumn('action', function ($order) {
                 return view('orders.datatables_actions', compact('order'));
