@@ -99,6 +99,14 @@
             <div class="form-text text-muted">{{ trans("lang.field_delivery_types_help") }}</div>
         </div>
     </div>
+@else
+        <div class="form-group row ">
+            {!! Form::label('deliveryTypes[]', trans("lang.field_delivery_types"),['class' => 'col-3 control-label text-right']) !!}
+            <div class="col-9">
+                {!! Form::select('deliveryTypes[]', $deliveryTypes, $deliveryTypesSelected, ['class' => 'select2 form-control' , 'multiple'=>'multiple']) !!}
+                <div class="form-text text-muted">{{ trans("lang.field_delivery_types_help") }}</div>
+            </div>
+        </div>
  @endif
 
     <div class="form-group row ">
