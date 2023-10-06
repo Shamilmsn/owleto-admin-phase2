@@ -702,6 +702,7 @@ class OrderAPIController extends Controller
                 $product = Product::find($productOrder['product_id']);
                 $productQuantity = $productOrder['quantity'];
                 $owletoCommissionAmount = $owletoCommissionAmount + ($product->owleto_commission_amount * $productQuantity);
+                $marketBalace = $product->vendor_payment_amount * $productQuantity;
                 $marketId = $product->market_id;
             }
             $type = Order::PRODUCT_TYPE;
@@ -755,7 +756,7 @@ class OrderAPIController extends Controller
                 'hint' => $request->get('hint'),
                 'total_amount' => $totalAmount,
                 'sub_total' => $request->get('sub_total'),
-                'market_balance' => $totalAmount - $owletoCommissionAmount,
+                'market_balance' => $marketBalace,
                 'owleto_commission_amount' => $owletoCommissionAmount,
                 'market_id' => $marketId,
                 'type' => $type,
