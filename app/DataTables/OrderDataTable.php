@@ -289,12 +289,12 @@ class OrderDataTable extends DataTable
     protected function getColumns()
     {
         return [
-//            [
-//                'data' => 'id',
-//                'name' => 'id',
-//                'title' => trans('lang.order_id'),
-//
-//            ],
+            [
+                'data' => 'id',
+                'name' => 'id',
+                'title' => trans('lang.order_id'),
+
+            ],
             [
                 'data' => 'user.name',
                 'name' => 'user.name',

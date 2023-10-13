@@ -142,12 +142,12 @@ class ProductDataTable extends DataTable
     protected function getColumns()
     {
         $columns = [
-            [
-                'data' => 'id',
-                'title' => trans('lang.id'),
-                'searchable' => true,
-
-            ],
+//            [
+//                'data' => 'id',
+//                'title' => trans('lang.id'),
+//                'searchable' => true,
+//
+//            ],
             [
                 'data' => 'base_name',
                 'title' => trans('lang.product_name'),

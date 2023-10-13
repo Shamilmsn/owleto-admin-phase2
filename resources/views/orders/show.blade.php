@@ -67,9 +67,9 @@
                                     <td>{{ $subOrder->is_collected_from_driver == 1 ? "Yes" : "No"}}</td>
                                     <td>{{ $subOrder->driver_commission_amount }} <p class="small"> Distance
                                             : {{ round($subOrder->driver_total_distance,3) }} </p></td>
-                                    <td>{{ $subOrder->owleto_commission_amount }}</td>
+                                    <td>{{ round($subOrder->owleto_commission_amount) }}</td>
                                     <td>{{ $subOrder->delivery_fee }}</td>
-                                    <td>{{ $subOrder->sub_total - $subOrder->owleto_commission_amount }}</td>
+                                    <td>{{ round($subOrder->market_balance) }}</td>
                                     <td>{{ optional($subOrder->paymentMethod)->name }}</td>
                                     <td>{{ optional($subOrder->deliveryType)->name }}</td>
                                     <td>{{ $subOrder->updated_at }}</td>
