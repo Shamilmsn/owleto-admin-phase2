@@ -682,6 +682,7 @@ class OrderAPIController extends Controller
         $productCount = count($input['products']);
         $amountFromWallet = $input['amount_from_wallet'];
         $deliveryFee = $request->get('delivery_fee') ?: 0;
+        $marketBalance = 0;
 
         DB::beginTransaction();
 
@@ -702,7 +703,7 @@ class OrderAPIController extends Controller
                 $product = Product::find($productOrder['product_id']);
                 $productQuantity = $productOrder['quantity'];
                 $owletoCommissionAmount = $owletoCommissionAmount + ($product->owleto_commission_amount * $productQuantity);
-                $marketBalace = $product->vendor_payment_amount * $productQuantity;
+                $marketBalance += $product->vendor_payment_amount * $productQuantity;
                 $marketId = $product->market_id;
             }
             $type = Order::PRODUCT_TYPE;
@@ -739,8 +740,6 @@ class OrderAPIController extends Controller
             $marketId = null;
         }
 
-        info("MARKET ID : " . $marketId);
-
         try {
             $isWalletUsed = ($amountFromWallet ? true : false);
             $deliveryAddress = DeliveryAddress::find($request->get('delivery_address_id'));
@@ -756,7 +755,7 @@ class OrderAPIController extends Controller
                 'hint' => $request->get('hint'),
                 'total_amount' => $totalAmount,
                 'sub_total' => $request->get('sub_total'),
-                'market_balance' => $marketBalace,
+                'market_balance' => $marketBalance,
                 'owleto_commission_amount' => $owletoCommissionAmount,
                 'market_id' => $marketId,
                 'type' => $type,
@@ -815,7 +814,7 @@ class OrderAPIController extends Controller
 
                 $product = Product::where('id', $package->product_id)->first();
 
-                $marketBalace = $pricePerDelivery - $product->owleto_commission_amount;
+                $marketBalance = $pricePerDelivery - $product->owleto_commission_amount;
 
                 $productOrder['commission_percentage'] = $product->owleto_commission_percentage;
                 $productOrder['commission_amount'] = $product->owleto_commission_amount;
@@ -823,7 +822,7 @@ class OrderAPIController extends Controller
                 $productOrder['package_id'] = $input['package']['package_id'];
                 $productOrder['package_price'] = $input['package']['price'];
                 $productOrder['price_per_delivery'] = $pricePerDelivery;
-                $productOrder['market_balance'] = $marketBalace;
+                $productOrder['market_balance'] = $marketBalance;
 
                 $packageDates = [];
                 foreach ($packageDays as $packageDay) {
@@ -1008,9 +1007,6 @@ class OrderAPIController extends Controller
 
             }
 
-
-            info("PARENT : " . $parentId);
-
             if ($order->order_category == Order::VENDOR_BASED) {
                 $payment = $this->paymentRepository->create([
                     "user_id" => $input['user_id'],
@@ -1060,8 +1056,7 @@ class OrderAPIController extends Controller
 
                         if (count($market->users) > 0) {
                             foreach ($market->users as $user) {
-                                info($user->device_token);
-                                info($user->name);
+
                                 $userFcmToken = $user->device_token;
                                 $userOrder = Order::findOrFail($order->id);
                                 $attributes['title'] = $userOrder->type == Order::ORDER_REQUEST_TYPE ? 'Manual order placed successfully' : 'Order placed successfully';
