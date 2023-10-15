@@ -652,7 +652,7 @@ class OrderAPIController extends Controller
                 ));
     
                 $order = Order::with(['user', 'market'])->findOrFail($order->id);
-                $order->razorpay_order_id = $razorPayOrder['id'];
+                $order->razorpay_order_id = $razorPayOrder['id'] ?? '';
                 $order->payment_gateway = 'RAZORPAY';
                 $order->payment_id = $payment->id;
                 $order->market_id = $marketID;
