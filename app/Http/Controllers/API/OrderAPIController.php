@@ -233,7 +233,10 @@ class OrderAPIController extends Controller
 
             foreach ($mainData as $data) {
                 if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_RAZORPAY) {
-                    return $this->razorPay($request);
+                    $response = $this->razorPay(collect($data), $parentId);
+                    if ($response['order']['order_category'] == Order::PRODUCT_BASED) {
+                        $parentId = $response['order']['id'];
+                    }
                 }
                 if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_COD) {
                     $response = $this->cashPayment(collect($data), $parentId);
@@ -260,7 +263,7 @@ class OrderAPIController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|mixed
      */
-    private function razorPay(Request $request)
+    private function razorPay(Collection $request, $parentId)
     {
         $input = $request->all();
 
@@ -270,6 +273,7 @@ class OrderAPIController extends Controller
         $marketId = null;
         $productCount = count($input['products']);
         $deliveryFee = $request->get('delivery_fee', 0);
+        $marketBalance = 0;
 
         $amountFromWallet = $input['amount_from_wallet'];
 
@@ -292,6 +296,7 @@ class OrderAPIController extends Controller
                 $productQuantity = $productOrder['quantity'];
                 $owletoCommissionAmount = $owletoCommissionAmount + ($product->owleto_commission_amount * $productQuantity);
                 $marketId = $product->market_id;
+                $marketBalance += $product->vendor_payment_amount * $productQuantity;
             }
 
             $type = Order::PRODUCT_TYPE;
@@ -301,6 +306,7 @@ class OrderAPIController extends Controller
             $package = SubscriptionPackage::where('id', $input['package']['package_id'])->first();
             $product = Product::where('id', $package->product_id)->first();
             $owletoCommissionAmount = $owletoCommissionAmount + $product->owleto_commission_amount;
+            $marketBalance += $product->vendor_payment_amount * $productQuantity;
             $marketId = $product->market_id;
             $type = Order::PACKAGE_TYPE;
         }
@@ -317,6 +323,10 @@ class OrderAPIController extends Controller
         if ($input['pickup_delivery_order']) {
             $owletoCommissionAmount = $totalAmount;
             $type = Order::PICKUP_DELIVERY_ORDER_TYPE;
+            $marketId = null;
+        }
+
+        if ($input['order_category'] == Order::PRODUCT_BASED) {
             $marketId = null;
         }
 
@@ -340,14 +350,16 @@ class OrderAPIController extends Controller
                     'hint' => $request->get('hint'),
                     'total_amount' => $totalAmount,
                     'sub_total' => $request->get('sub_total'),
-                    'market_balance' => $totalAmount - $owletoCommissionAmount,
+                    'market_balance' => $marketBalance,
                     'owleto_commission_amount' => $owletoCommissionAmount,
                     'market_id' => $marketId,
                     'type' => $type,
                     'amount_from_wallet' => $amountFromWallet,
                     'is_wallet_used' => $isWalletUsed,
                     'distance' => $request->get('distance'),
-                    'sector_id' => $request->get('sector_id')
+                    'sector_id' => $request->get('sector_id'),
+                    'order_category' => $request->get('order_category'),
+                    'parent_id' => $parentId
                 ]);
             } else {
                 $deliveryAddress = DeliveryAddress::find($request->get('delivery_address_id'));
@@ -363,7 +375,7 @@ class OrderAPIController extends Controller
                     'hint' => $request->get('hint'),
                     'total_amount' => $totalAmount,
                     'sub_total' => $request->get('sub_total'),
-                    'market_balance' => $totalAmount - $owletoCommissionAmount,
+                    'market_balance' => $marketBalance,
                     'owleto_commission_amount' => $owletoCommissionAmount,
                     'market_id' => $marketId,
                     'type' => $type,
@@ -374,6 +386,8 @@ class OrderAPIController extends Controller
                     'latitude' => $deliveryAddress->latitude,
                     'longitude' => $deliveryAddress->longitude,
                     'address_data' => json_encode($deliveryAddress),
+                    'order_category' => $request->get('order_category'),
+                    'parent_id' => $parentId
 
                 ]);
             }
@@ -595,74 +609,99 @@ class OrderAPIController extends Controller
                 $pickUpDeliveryOrderRequest->save();
             }
 
+            $marketID = null;
 
-            $payment = $this->paymentRepository->create([
-                "user_id" => $input['user_id'],
-                "order_id" => $order->id,
-                "description" => trans("lang.payment_order_waiting"),
-                "price" => $totalAmount,
-                "status" => 'Waiting for Client',
-                "method" => PaymentMethod::RAZORPAY,
-                'payment_method_id' => PaymentMethod::PAYMENT_METHOD_RAZORPAY
-            ]);
+            if ($input['order_category'] != Order::PRODUCT_BASED) {
+                if ($productCount > 0) {
+                    $marketID = $order->productOrders[0]->product->market->id;
+                }
+                if ($input['package']) {
+                    $marketID = $order->packageOrders[0]->package->product->market->id;
+                }
+                if ($input['order_request']) {
+                    $marketID = $marketId;
+                }
 
-            $amountToRazorpay = (int)($totalAmount * 100);
+                if ($input['pickup_delivery_order']) {
+                    $marketID = null;
+                }
 
-            $api_key = config('services.razorpay.api_key');
-            $api_secret = config('services.razorpay.api_secret');
-            $api = new Api($api_key, $api_secret);
-            $razorPayOrder = $api->order->create(array(
-                'receipt' => $order->id,
-                'amount' => $amountToRazorpay,
-                'currency' => 'INR',
-            ));
+            }
 
-            $order = Order::with(['user', 'market'])->findOrFail($order->id);
-            $order->razorpay_order_id = $razorPayOrder['id'];
-            $order->payment_gateway = 'RAZORPAY';
-            $order->payment_id = $payment->id;
+            $razorPayOrderId = null;
+            if ($order->order_category == Order::VENDOR_BASED) {
+                $payment = $this->paymentRepository->create([
+                    "user_id" => $input['user_id'],
+                    "order_id" => $order->id,
+                    "description" => trans("lang.payment_order_waiting"),
+                    "price" => $totalAmount,
+                    "status" => 'Waiting for Client',
+                    "method" => PaymentMethod::RAZORPAY,
+                    'payment_method_id' => PaymentMethod::PAYMENT_METHOD_RAZORPAY
+                ]);
+    
+                $amountToRazorpay = (int)($totalAmount * 100);
+    
+                $api_key = config('services.razorpay.api_key');
+                $api_secret = config('services.razorpay.api_secret');
+                $api = new Api($api_key, $api_secret);
+                $razorPayOrder = $api->order->create(array(
+                    'receipt' => $order->id,
+                    'amount' => $amountToRazorpay,
+                    'currency' => 'INR',
+                ));
+    
+                $order = Order::with(['user', 'market'])->findOrFail($order->id);
+                $order->razorpay_order_id = $razorPayOrder['id'];
+                $order->payment_gateway = 'RAZORPAY';
+                $order->payment_id = $payment->id;
+                $order->market_id = $marketID;
+    
+                $order->save();
+                $razorPayOrderId = $razorPayOrder['id'] ?? '';
+            }    
 
-            $order->save();
-
-            $response = ['order' => $order, 'razorpayOrderId' => $razorPayOrder['id']];
+            $response = ['order' => $order, 'razorpayOrderId' => $razorPayOrderId];
 
         } catch (ValidatorException $e) {
             return $this->sendError($e->getMessage());
         }
 
-        if ($request->coupon_code) {
+        if ($order->order_category == Order::VENDOR_BASED) {
+            if ($request->get('coupon_code')) {
 
-            $coupon = Coupon::where('code', $request->coupon_code)->first();
-
-            $order->is_coupon_used = true;
-            $order->coupon_code = $request->coupon_code;
-            $order->coupon_discount_amount = $coupon->discount;
-            $order->save();
-
-            if (!$coupon) {
-                return $this->sendError('Coupon code is not found');
+                $coupon = Coupon::where('code', $request->get('coupon_code'))->first();
+    
+                $order->is_coupon_used = true;
+                $order->coupon_code = $request->get('coupon_code');
+                $order->coupon_discount_amount = $coupon->discount;
+                $order->save();
+    
+                if (!$coupon) {
+                    return $this->sendError('Coupon code is not found');
+                }
+    
+                $orderCoupon = new OrderCoupon();
+    
+                $orderCoupon->user_id = $request->get('user_id');
+                $orderCoupon->order_id = $order->id;
+                $orderCoupon->coupon_id = $coupon->id;
+                $orderCoupon->coupon_redeemed_amount = $request->get('coupon_redeemed_amount');
+    
+                $isCouponAlreadyUsed = OrderCoupon::where('coupon_id', $coupon->id)
+                    ->orderBy('id', 'desc')
+                    ->first();
+    
+                if (!$isCouponAlreadyUsed) {
+                    $orderCoupon->number_of_usage = 1;
+                } else {
+                    $number_of_usage = $isCouponAlreadyUsed->number_of_usage;
+                    $orderCoupon->number_of_usage = $number_of_usage + 1;
+                }
+    
+                $orderCoupon->save();
+    
             }
-
-            $orderCoupon = new OrderCoupon();
-
-            $orderCoupon->user_id = $request->user_id;
-            $orderCoupon->order_id = $order->id;
-            $orderCoupon->coupon_id = $coupon->id;
-            $orderCoupon->coupon_redeemed_amount = $request->coupon_redeemed_amount;
-
-            $isCouponAlreadyUsed = OrderCoupon::where('coupon_id', $coupon->id)
-                ->orderBy('id', 'desc')
-                ->first();
-
-            if (!$isCouponAlreadyUsed) {
-                $orderCoupon->number_of_usage = 1;
-            } else {
-                $number_of_usage = $isCouponAlreadyUsed->number_of_usage;
-                $orderCoupon->number_of_usage = $number_of_usage + 1;
-            }
-
-            $orderCoupon->save();
-
         }
 
         DB::commit();
@@ -715,6 +754,7 @@ class OrderAPIController extends Controller
             $product = Product::where('id', $package->product_id)->first();
             $owletoCommissionAmount = $owletoCommissionAmount + $product->owleto_commission_amount;
             $marketId = $product->market_id;
+            $marketBalance += $product->vendor_payment_amount * $productQuantity;
             $type = Order::PACKAGE_TYPE;
         }
 
