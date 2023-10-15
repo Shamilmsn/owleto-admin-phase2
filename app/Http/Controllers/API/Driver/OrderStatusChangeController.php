@@ -66,6 +66,24 @@ class OrderStatusChangeController extends Controller
                 $order->order_status_id = $orderStatusId;
                 $order->save();
 
+                if ($order->parentOrder) {
+                    $parentOrder = Order::findOrFail($order->parent_id);
+                    $parentOrder->order_status_id = OrderStatus::STATUS_SUBORDER_DELIVERED;
+
+                    $subOrderDelivered = $parentOrder->allSubOrders()->get()->every(function ($subOrder) {
+                        return $subOrder->order_status_id == OrderStatus::STATUS_DELIVERED;
+                    });
+
+                    if ($subOrderDelivered) {
+                        $parentOrder->order_status_id = OrderStatus::STATUS_SUBORDER_DELIVERED;
+                    }
+                    $parentOrder->save();
+                }
+
+                if (count($order->allSubOrders) > 0) {
+                    $order->allSubOrders()->update(['order_status_id' => OrderStatus::STATUS_DELIVERED]);
+                }
+
                 $earning = Earning::where('market_id', $marketId)->first();
 
                 $totalOrdersCount = $earning->total_orders + 1;
@@ -203,6 +221,24 @@ class OrderStatusChangeController extends Controller
                         $userWalletTransaction->package_id = null;
                         $userWalletTransaction->product_id = null;
                         $userWalletTransaction->save();
+                    }
+
+                    if ($order->parentOrder) {
+                        $parentOrder = Order::findOrFail($order->parent_id);
+    
+                        $subOrderCanceled= $parentOrder->allSubOrders()->get()->every(function ($subOrder) {
+                            return $subOrder->order_status_id == OrderStatus::STATUS_CANCELED;
+                        });
+    
+                        if ($subOrderCanceled) {
+                            $parentOrder->order_status_id = OrderStatus::STATUS_CANCELED;
+                        }
+                        $parentOrder->save();
+                    }
+
+
+                    if (count($order->allSubOrders) > 0) {
+                        $order->allSubOrders()->update(['order_status_id' => OrderStatus::STATUS_CANCELED]);
                     }
                 }
             }

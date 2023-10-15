@@ -15,6 +15,7 @@ use App\Notifications\DriverAssignedNotificationToUser;
 use App\Notifications\OrderDeliveredPushNotifictaion;
 use Carbon\Carbon;
 use Eloquent as Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 
@@ -366,5 +367,15 @@ class Order extends Model
     public function getSubOrdersAttribute()
     {
         return Order::where('parent_id', $this->id)->get();
+    }
+
+    public function allSubOrders()
+    {
+        return $this->hasMany(Order::class, 'parent_id', 'id');
+    }
+
+    public function parentOrder()
+    {
+        return $this->belongsTo(Order::class, 'parent_id', 'id');
     }
 }

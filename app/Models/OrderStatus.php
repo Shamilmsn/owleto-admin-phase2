@@ -24,6 +24,7 @@ class OrderStatus extends Model
     const STATUS_CANCELED = 6;
     const STATUS_DRIVER_ASSIGNED = 7;
     const STATUS_ACCEPTED = 8;
+    const STATUS_SUBORDER_DELIVERED = 9;
 
     public $fillable = [
         'status'
