@@ -177,6 +177,45 @@ class RazorpayController extends Controller
                     }
                 }
 
+                if (count($order->allSubOrders) > 0) {
+                    foreach ($order->allSubOrders as $subOrder) {
+                        if ($subOrder->market_id) {
+                            $market = Market::with('users')
+                                ->where('id', $subOrder->market_id)
+                                ->first();
+        
+                            if($subOrder->type == Order::PRODUCT_TYPE){
+                                $url = url($subOrder->productOrders[0]->product->market->getFirstMediaUrl('image', 'thumb'));
+                            }
+        
+                            if($subOrder->type == Order::PACKAGE_TYPE){
+                                $url = url($subOrder->packageOrders[0]->package->product->market->getFirstMediaUrl('image', 'thumb'));
+                            }
+        
+                            if($subOrder->type == Order::ORDER_REQUEST_TYPE){
+        
+                                $url = url($subOrder->productOrderRequestOrder->temporaryOrderRequest->orderRequest->market->getFirstMediaUrl('image', 'thumb'));
+                            }
+        
+                            if (count($market->users) > 0) {
+                                foreach ($market->users as $user) {
+                                    $userFcmToken[] = $user->device_token;
+                                    $marketAttributes['title'] = 'Owleto new order';
+                                    $marketAttributes['redirection_type'] = Order::NEW_ORDER_REDIRECTION_TYPE;
+                                    $marketAttributes['message'] ='You have received a new order from '. $subOrder->user->name .' with OrderID '.$subOrder->id.' for '. $market->name;
+                                    $marketAttributes['image'] = $url;
+                                    $marketAttributes['data'] = null;
+                                    $marketAttributes['redirection_id'] = $subOrder->id;
+                                    $marketAttributes['type'] = $subOrder->type;
+        
+                                    Notification::route('fcm', $userFcmToken)
+                                        ->notify(new NewOrder($marketAttributes));
+                                }
+                            }
+                        }
+                    }
+                }
+
 
             }catch (\Exception $e) {
 
@@ -213,6 +252,10 @@ class RazorpayController extends Controller
             $order->payment_status = 'FAILED';
             $order->order_status_id = OrderStatus::STATUS_CANCELED;
             $order->save();
+
+            if (count($order->allSubOrders) > 0) {
+                $order->allSubOrders()->update(['order_status_id' => OrderStatus::STATUS_CANCELED]);
+            }
 
             $payment = Payment::where('order_id', $order->id)->first();
 
