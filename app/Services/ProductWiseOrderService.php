@@ -14,12 +14,14 @@ class ProductWiseOrderService
     {
         $data['order_category'] = Order::PRODUCT_BASED;
         $data['distance'] = null;
+        $data['pay_order'] = true;
         return $data;
     }
 
     public function fetchMutatedRequestForSubOrder(Collection $data, Market $market, $marketCount, $deliveryLat, $deliveryLon)
     {
         $data['order_category'] = Order::VENDOR_BASED;
+        $data['pay_order'] = false;
         $products = [];
         $tax = 0.0;
         $subTotal = 0.0;

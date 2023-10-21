@@ -188,8 +188,6 @@ class OrderAPIController extends Controller
 
     public function store(Request $request, ProductWiseOrderService $orderService)
     {
-        info("HERE");
-        info($request);
         if (isset($request->payment_method_id)) {
 
             //order changed from vendor based to product based
@@ -197,7 +195,6 @@ class OrderAPIController extends Controller
             if (count($request->get('products')) > 0) {
                 $productIds = array_unique(collect($request->get('products'))->pluck('product_id')->toArray());
                 $vendors = Product::whereIn('id', $productIds)->pluck('market_id')->toArray();
-                info("VENDOR IDS : " . json_encode($vendors));
                 $vendors = array_unique($vendors);
             }
 
@@ -227,13 +224,15 @@ class OrderAPIController extends Controller
                 $data = $request->all();
                 $data['order_category'] = Order::VENDOR_BASED;
 
+                $data['pay_order'] = true;
+
                 $mainData[] = $data;
             }
             $parentId = null;
 
             foreach ($mainData as $data) {
                 if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_RAZORPAY) {
-                    $response = $this->razorPay(collect($data), $parentId);
+                    $response = $this->razorPay(collect($data), $parentId, $data['pay_order']);
                     if ($response['order']['order_category'] == Order::PRODUCT_BASED) {
                         $parentId = $response['order']['id'];
                     }
@@ -252,6 +251,10 @@ class OrderAPIController extends Controller
             if ($response['order']['parent_id']) {
                 $order = Order::findOrFail($response['order']['parent_id']);
                 $response['order'] = $order;
+
+                if ($order->razorpay_order_id) {
+                    $response['razorpayOrderId'] = $order->razorpay_order_id;
+                }
             }
 
             return $this->sendResponse($response, __('lang.saved_successfully', ['operator' => __('lang.order')]));
@@ -262,8 +265,9 @@ class OrderAPIController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse|mixed
      */
-    private function razorPay(Collection $request, $parentId)
+    private function razorPay(Collection $request, $parentId, $payOrder = false)
     {
+        info($request);
         $input = $request->all();
 
         $owletoCommissionAmount = 0;
@@ -628,7 +632,7 @@ class OrderAPIController extends Controller
             }
 
             $razorPayOrderId = null;
-            if ($order->order_category == Order::VENDOR_BASED) {
+            if ($payOrder) {
                 $payment = $this->paymentRepository->create([
                     "user_id" => $input['user_id'],
                     "order_id" => $order->id,
@@ -649,7 +653,8 @@ class OrderAPIController extends Controller
                     'amount' => $amountToRazorpay,
                     'currency' => 'INR',
                 ));
-    
+
+                info("RAZOR : " . $amountToRazorpay);
                 $order = Order::with(['user', 'market'])->findOrFail($order->id);
                 $order->razorpay_order_id = $razorPayOrder['id'] ?? '';
                 $order->payment_gateway = 'RAZORPAY';
@@ -1160,8 +1165,6 @@ class OrderAPIController extends Controller
 
             DB::commit();
 
-            info($order);
-
             $response = ['order' => $order, 'razorpayOrderId' => null];
 
         } catch (ValidatorException $e) {
@@ -1204,9 +1207,6 @@ class OrderAPIController extends Controller
             }
 
         }
-
-        info("MARKETID : " . $marketId);
-        info(Order::findOrFail($order->id));
 
         return $response;
     }
