@@ -240,7 +240,6 @@ class OrderAPIController extends Controller
                 }
                 if ($request->payment_method_id == PaymentMethod::PAYMENT_METHOD_COD) {
                     $response = $this->cashPayment(collect($data), $parentId);
-                    info("FINAL : " . json_encode($response));
                     if ($response['order']['order_category'] == Order::PRODUCT_BASED) {
                         $parentId = $response['order']['id'];
                     }
@@ -706,9 +705,13 @@ class OrderAPIController extends Controller
 
         DB::commit();
 
-        event(new \App\Events\NewOrderEvent());
+        try {
+            event(new \App\Events\NewOrderEvent());
+        } catch (\Exception $exception) {
 
-        return $this->sendResponse($response, 'Inserted Successfully');
+        }
+
+        return $response;
     }
 
     private function cashPayment(Collection $request, $parentId)

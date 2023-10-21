@@ -177,6 +177,8 @@ class OrderStatusChangeController extends Controller
                     $payment->description = 'Payment Successful';
                     $payment->save();
                 }
+
+                $order->
             }
             else {
                 $order->order_status_id = $orderStatusId;
