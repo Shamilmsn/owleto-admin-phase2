@@ -1131,7 +1131,7 @@ class OrderAPIController extends Controller
                     // select only order detail for fcm notification
                     $userOrder = Order::findOrFail($order->id);
                     $attributes['title'] = $userOrder->type == Order::ORDER_REQUEST_TYPE ? 'Manual order placed successfully' : 'Order placed successfully';
-                    $attributes['redirection_type'] = Order::NEW_ORDER_REDIRECTION_TYPE;
+                    $attributes['redirection_type'] = Order::ORDER_REQUEST_TYPE ? Order::MANUAL_ORDER_REDIRECTION_TYPE : Order::NEW_ORDER_REDIRECTION_TYPE;
                     $attributes['message'] = 'Your new Order from ' . $marketName . ' is placed with OrderID' . $order->id;
                     $attributes['image'] = $url;
                     $attributes['data'] = $userOrder->toArray();
