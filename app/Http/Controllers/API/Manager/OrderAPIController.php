@@ -793,6 +793,9 @@ class OrderAPIController extends Controller
                 }
             }
 
+            info(json_encode($managerOrders));
+            info("GOT IT");
+
             return $this->sendResponse($managerOrders, 'order approved successfully');
         } catch (Exception $exception) {
             info("ERROR");
