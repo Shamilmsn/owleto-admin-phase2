@@ -103,14 +103,16 @@ class Driver extends Model
     {
         $userId = $this->user_id;
 
+        $beforeTwoDays = Carbon::today()->subDays(2)->format('Y-m-d 00:00:00');
+
         $orders = Order::where('driver_id', $userId)
-            ->whereDate('driver_assigned_at', Carbon::today())
+            ->whereDate('driver_assigned_at','>=', $beforeTwoDays)
             ->where('type', '<>', Order::PACKAGE_TYPE)
             ->whereIn('order_status_id', [Order::STATUS_DRIVER_ASSIGNED,Order::STATUS_ON_THE_WAY])
             ->get();
 
         $packageOrders = PackageOrder::where('driver_id', $userId)
-            ->whereDate('driver_assigned_at', Carbon::today())
+            ->whereDate('driver_assigned_at','>=', $beforeTwoDays)
             ->whereIn('order_status_id', [Order::STATUS_DRIVER_ASSIGNED,Order::STATUS_ON_THE_WAY])
             ->get();
 
