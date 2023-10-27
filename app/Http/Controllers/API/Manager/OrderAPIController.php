@@ -573,6 +573,7 @@ class OrderAPIController extends Controller
     public function approveOrder(Request $request)
     {
         try {
+            info("HERE");
             $orderId = $request->order_id;
 
             $order = Order::with(['user', 'productOrders.product', 'productOrders.options', 'orderStatus', 'deliveryType',
