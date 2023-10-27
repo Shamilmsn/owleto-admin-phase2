@@ -742,6 +742,8 @@ class OrderAPIController extends Controller
                 $driversCurrentLocations = DriversCurrentLocation::getAvailableDriver($latMarket, $longMarket, $market);
 
                 if (!$driversCurrentLocations) {
+                    info(json_encode($managerOrders));
+                    info("No driver");
                     return $this->sendResponse($managerOrders, 'Order approved, Driver Not Assigned');
                 }
 
@@ -794,7 +796,7 @@ class OrderAPIController extends Controller
             }
 
             info(json_encode($managerOrders));
-            info("GOT IT");
+            info("Finished");
 
             return $this->sendResponse($managerOrders, 'order approved successfully');
         } catch (Exception $exception) {
