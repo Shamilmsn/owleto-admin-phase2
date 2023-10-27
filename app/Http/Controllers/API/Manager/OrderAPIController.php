@@ -572,226 +572,232 @@ class OrderAPIController extends Controller
 
     public function approveOrder(Request $request)
     {
-        $orderId = $request->order_id;
-
-        $order = Order::with(['user', 'productOrders.product', 'productOrders.options', 'orderStatus', 'deliveryType',
-            'deliveryAddress', 'payment', 'packageOrders', 'packageOrders.orderStatus',
-            'productOrderRequestOrder.temporaryOrderRequest'])
-            ->where('id', $orderId)
-            ->first();
-
-        if (empty($order) || $order->type == Order::PACKAGE_TYPE || $order->type == Order::ORDER_REQUEST_TYPE) {
-            return $this->sendError('Order not found');
-        }
-
-        if ($order->is_order_approved == 1) {
-            return $this->sendError('Order already approved');
-        }
-
-        $order->is_order_approved = true;
-        $order->save();
-
         try {
-            info("owleto order approved".$order->id);
-            $userFcmToken[] = $order->user->device_token;
-            $attributes['title'] = 'Owleto Order Approved';
-            $attributes['redirection_type'] = Order::ORDER_APPROVED_REDIRECTION_TYPE;
-            $attributes['message'] = 'Your order with order id ' . $order->id . ' has been approved';
-            $attributes['data'] = null;
-            $attributes['redirection_id'] = $order->id;
-            $attributes['type'] = $order->type;
+            $orderId = $request->order_id;
 
-            Notification::route('fcm', $userFcmToken)
-                ->notify(new OrderCancelNotification($attributes));
+            $order = Order::with(['user', 'productOrders.product', 'productOrders.options', 'orderStatus', 'deliveryType',
+                'deliveryAddress', 'payment', 'packageOrders', 'packageOrders.orderStatus',
+                'productOrderRequestOrder.temporaryOrderRequest'])
+                ->where('id', $orderId)
+                ->first();
 
-        } catch (Exception $e) {
+            if (empty($order) || $order->type == Order::PACKAGE_TYPE || $order->type == Order::ORDER_REQUEST_TYPE) {
+                return $this->sendError('Order not found');
+            }
 
-        }
+            if ($order->is_order_approved == 1) {
+                return $this->sendError('Order already approved');
+            }
 
-        $managerOrders = [];
-        $addons = [];
-        $orderItems = [];
+            $order->is_order_approved = true;
+            $order->save();
 
-        $marketId = $order->market_id;
-        $market = $this->marketRepository->findWithoutFail($marketId);
-        $latMarket = $market->latitude;
-        $longMarket = $market->longitude;
+            try {
+                info("owleto order approved".$order->id);
+                $userFcmToken[] = $order->user->device_token;
+                $attributes['title'] = 'Owleto Order Approved';
+                $attributes['redirection_type'] = Order::ORDER_APPROVED_REDIRECTION_TYPE;
+                $attributes['message'] = 'Your order with order id ' . $order->id . ' has been approved';
+                $attributes['data'] = null;
+                $attributes['redirection_id'] = $order->id;
+                $attributes['type'] = $order->type;
 
-        if ($order->type == Order::PRODUCT_TYPE) {
+                Notification::route('fcm', $userFcmToken)
+                    ->notify(new OrderCancelNotification($attributes));
 
-            foreach ($order->productOrders as $productOrder) {
-                $addons = $productOrder->order_addons;
+            } catch (Exception $e) {
+
+            }
+
+            $managerOrders = [];
+            $addons = [];
+            $orderItems = [];
+
+            $marketId = $order->market_id;
+            $market = $this->marketRepository->findWithoutFail($marketId);
+            $latMarket = $market->latitude;
+            $longMarket = $market->longitude;
+
+            if ($order->type == Order::PRODUCT_TYPE) {
+
+                foreach ($order->productOrders as $productOrder) {
+                    $addons = $productOrder->order_addons;
+                    array_push($orderItems, [
+                        'order_item_id' => $productOrder->id,
+                        'quantity' => $productOrder->quantity,
+                        'price' => $productOrder->price,
+                        'order_item_name' => $productOrder->product->name,
+                        'product_id' => $productOrder->product_id,
+                        'image' => $productOrder->product->media,
+                        'package_price' => null,
+                        'addons' => $addons
+                    ]);
+                }
+
+                $managerOrders = ['id' => $order->id,
+                    'order_id' => $order->id,
+                    'user_id' => $order->user_id,
+                    'order_status_id' => $order->order_status_id,
+                    'type' => $order->type,
+                    'distance' => $order->distance,
+                    'delivery_address_id' => $order->delivery_address_id,
+                    'delivery_type_id' => $order->delivery_type_id,
+                    'payment_method_id' => $order->payment_method_id,
+                    'total_amount' => $order->total_amount,
+                    'sub_total' => $order->sub_total,
+                    'market_id' => $order->market_id,
+                    'created_at' => $order->created_at,
+                    'delivery_fee' => $order->delivery_fee,
+                    'tax' => $order->tax,
+                    'is_delivered' => null,
+                    'is_order_approved' => $order->is_order_approved,
+                    'order_items' => $orderItems,
+                    'user' => $order->user,
+                    'market' => $order->market,
+                    'order_status' => $order->orderStatus,
+                    'delivery_address' => $order->deliveryAddress,
+                    'payment_method' => $order->paymentMethod,
+                    'delivery_type' => $order->deliveryType
+                ];
+            }
+
+            if ($order->type == Order::ORDER_REQUEST_TYPE) {
+
                 array_push($orderItems, [
-                    'order_item_id' => $productOrder->id,
-                    'quantity' => $productOrder->quantity,
-                    'price' => $productOrder->price,
-                    'order_item_name' => $productOrder->product->name,
-                    'product_id' => $productOrder->product_id,
-                    'image' => $productOrder->product->media,
+                    'order_item_id' => $order->productOrderRequestOrder->id,
+                    'quantity' => null,
+                    'price' => $order->productOrderRequestOrder->price,
+                    'order_item_name' => null,
+                    'product_id' => null,
+                    'image' => $order->productOrderRequestOrder->temporaryOrderRequest->orderRequest->image_url,
                     'package_price' => null,
                     'addons' => $addons
                 ]);
+                $managerOrders = [
+                    'id' => $order->id,
+                    'order_id' => $order->id,
+                    'user_id' => $order->user_id,
+                    'order_status_id' => $order->order_status_id,
+                    'type' => $order->type,
+                    'distance' => $order->distance,
+                    'delivery_address_id' => $order->delivery_address_id,
+                    'delivery_type_id' => $order->delivery_type_id,
+                    'payment_method_id' => $order->payment_method_id,
+                    'total_amount' => $order->total_amount,
+                    'sub_total' => $order->sub_total,
+                    'market_id' => $order->market_id,
+                    'created_at' => $order->created_at,
+                    'delivery_fee' => $order->delivery_fee,
+                    'tax' => $order->tax,
+                    'is_delivered' => null,
+                    'is_order_approved' => $order->is_order_approved,
+                    'order_items' => $orderItems,
+                    'user' => $order->user,
+                    'market' => $order->market,
+                    'order_status' => $order->orderStatus,
+                    'delivery_address' => $order->deliveryAddress,
+                    'payment_method' => $order->paymentMethod,
+                    'delivery_type' => $order->deliveryType
+                ];
             }
 
-            $managerOrders = ['id' => $order->id,
-                'order_id' => $order->id,
-                'user_id' => $order->user_id,
-                'order_status_id' => $order->order_status_id,
-                'type' => $order->type,
-                'distance' => $order->distance,
-                'delivery_address_id' => $order->delivery_address_id,
-                'delivery_type_id' => $order->delivery_type_id,
-                'payment_method_id' => $order->payment_method_id,
-                'total_amount' => $order->total_amount,
-                'sub_total' => $order->sub_total,
-                'market_id' => $order->market_id,
-                'created_at' => $order->created_at,
-                'delivery_fee' => $order->delivery_fee,
-                'tax' => $order->tax,
-                'is_delivered' => null,
-                'is_order_approved' => $order->is_order_approved,
-                'order_items' => $orderItems,
-                'user' => $order->user,
-                'market' => $order->market,
-                'order_status' => $order->orderStatus,
-                'delivery_address' => $order->deliveryAddress,
-                'payment_method' => $order->paymentMethod,
-                'delivery_type' => $order->deliveryType
-            ];
-        }
+            if ($order->sector_id != Field::TAKEAWAY || $order->delivery_type_id == DeliveryType::TYPE_EXPRESS) {
 
-        if ($order->type == Order::ORDER_REQUEST_TYPE) {
+                $input['order_status_id'] = Order::STATUS_DRIVER_ASSIGNED;
 
-            array_push($orderItems, [
-                'order_item_id' => $order->productOrderRequestOrder->id,
-                'quantity' => null,
-                'price' => $order->productOrderRequestOrder->price,
-                'order_item_name' => null,
-                'product_id' => null,
-                'image' => $order->productOrderRequestOrder->temporaryOrderRequest->orderRequest->image_url,
-                'package_price' => null,
-                'addons' => $addons
-            ]);
-            $managerOrders = [
-                'id' => $order->id,
-                'order_id' => $order->id,
-                'user_id' => $order->user_id,
-                'order_status_id' => $order->order_status_id,
-                'type' => $order->type,
-                'distance' => $order->distance,
-                'delivery_address_id' => $order->delivery_address_id,
-                'delivery_type_id' => $order->delivery_type_id,
-                'payment_method_id' => $order->payment_method_id,
-                'total_amount' => $order->total_amount,
-                'sub_total' => $order->sub_total,
-                'market_id' => $order->market_id,
-                'created_at' => $order->created_at,
-                'delivery_fee' => $order->delivery_fee,
-                'tax' => $order->tax,
-                'is_delivered' => null,
-                'is_order_approved' => $order->is_order_approved,
-                'order_items' => $orderItems,
-                'user' => $order->user,
-                'market' => $order->market,
-                'order_status' => $order->orderStatus,
-                'delivery_address' => $order->deliveryAddress,
-                'payment_method' => $order->paymentMethod,
-                'delivery_type' => $order->deliveryType
-            ];
-        }
+                $references = [];
+                try {
+                    $references = $this->database->getReference($this->table)->getValue();
+                } catch (\Exception $exception) {
 
-        if ($order->sector_id != Field::TAKEAWAY || $order->delivery_type_id == DeliveryType::TYPE_EXPRESS) {
+                }
 
-            $input['order_status_id'] = Order::STATUS_DRIVER_ASSIGNED;
+                foreach ($references as $reference) {
 
-            $references = [];
-            try {
-                $references = $this->database->getReference($this->table)->getValue();
-            } catch (\Exception $exception) {
+                    if ($reference) {
 
-            }
+                        if (array_key_exists("user_id", $reference)) {
 
-            foreach ($references as $reference) {
+                            $currentDriverLatitude = $reference['latitude'];
+                            $currentDriverLongitude = $reference['longitude'];
 
-                if ($reference) {
+                            if (DriversCurrentLocation::getDriverCurrentLocations($latMarket, $longMarket, $currentDriverLatitude,
+                                    $currentDriverLongitude, "K") < 10) {
 
-                    if (array_key_exists("user_id", $reference)) {
+                                $driver = Driver::where('user_id', $reference['user_id'])->first();
 
-                        $currentDriverLatitude = $reference['latitude'];
-                        $currentDriverLongitude = $reference['longitude'];
-
-                        if (DriversCurrentLocation::getDriverCurrentLocations($latMarket, $longMarket, $currentDriverLatitude,
-                                $currentDriverLongitude, "K") < 10) {
-
-                            $driver = Driver::where('user_id', $reference['user_id'])->first();
-
-                            if ($driver) {
-                                $driverId = $driver->id;
-                                DriversCurrentLocation::updateCurrentLocation($driverId,
-                                    $currentDriverLatitude, $currentDriverLongitude);
+                                if ($driver) {
+                                    $driverId = $driver->id;
+                                    DriversCurrentLocation::updateCurrentLocation($driverId,
+                                        $currentDriverLatitude, $currentDriverLongitude);
+                                }
                             }
                         }
+
                     }
 
                 }
 
+                $driversCurrentLocations = DriversCurrentLocation::getAvailableDriver($latMarket, $longMarket, $market);
+
+                if (!$driversCurrentLocations) {
+                    return $this->sendResponse($managerOrders, 'Order approved, Driver Not Assigned');
+                }
+
+                $order = $this->orderRepository->update($input, $orderId);
+
+                $distance = $order->distance;
+                $driverCommissionAmount = $distance * $driversCurrentLocations->driver->delivery_fee;
+
+                $order->driver_id = $driversCurrentLocations->driver->user_id;
+                $order->driver_assigned_at = Carbon::now();
+                $order->driver_commission_amount = round($driverCommissionAmount, 2);
+                $order->save();
+
+                $driver = Driver::where('id', $driversCurrentLocations->driver_id)->first();
+                $driver->available = 0;
+                $driver->save();
+
+                try {
+                    $userOrder = Order::findOrFail($orderId);
+                    $correspondingDriver = User::findorFail($driver->user_id);
+                    $driverFcmToken = $correspondingDriver->device_token;
+
+                    $attributes['title'] = 'Owleto Order';
+                    $attributes['message'] = 'Owleto Order with OrderID : ' . $userOrder->id . ' has been Assigned to you.';
+                    $attributes['data'] = $userOrder->toArray();
+
+                    Notification::route('fcm', $driverFcmToken)
+                        ->notify(new DriverAssignedNotification($attributes));
+
+                } catch (Exception $e) {
+
+                }
+
+                try {
+
+                    $userOrder = Order::findOrFail($orderId);
+                    $user = User::findorFail($userOrder->user_id);
+                    $userFcmToken = $user->device_token;
+
+                    $attributes['title'] = 'Owleto Order';
+                    $attributes['message'] = 'Your Order with OrderID ' . $userOrder->id . ' has been Shipped';
+                    $attributes['data'] = $userOrder->toArray();
+
+                    Notification::route('fcm', $userFcmToken)
+                        ->notify(new DriverAssignedNotificationToUser($attributes));
+
+                } catch (Exception $e) {
+
+                }
             }
 
-            $driversCurrentLocations = DriversCurrentLocation::getAvailableDriver($latMarket, $longMarket, $market);
-
-            if (!$driversCurrentLocations) {
-                return $this->sendResponse($managerOrders, 'Order approved, Driver Not Assigned');
-            }
-
-            $order = $this->orderRepository->update($input, $orderId);
-
-            $distance = $order->distance;
-            $driverCommissionAmount = $distance * $driversCurrentLocations->driver->delivery_fee;
-
-            $order->driver_id = $driversCurrentLocations->driver->user_id;
-            $order->driver_assigned_at = Carbon::now();
-            $order->driver_commission_amount = round($driverCommissionAmount, 2);
-            $order->save();
-
-            $driver = Driver::where('id', $driversCurrentLocations->driver_id)->first();
-            $driver->available = 0;
-            $driver->save();
-
-            try {
-                $userOrder = Order::findOrFail($orderId);
-                $correspondingDriver = User::findorFail($driver->user_id);
-                $driverFcmToken = $correspondingDriver->device_token;
-
-                $attributes['title'] = 'Owleto Order';
-                $attributes['message'] = 'Owleto Order with OrderID : ' . $userOrder->id . ' has been Assigned to you.';
-                $attributes['data'] = $userOrder->toArray();
-
-                Notification::route('fcm', $driverFcmToken)
-                    ->notify(new DriverAssignedNotification($attributes));
-
-            } catch (Exception $e) {
-
-            }
-
-            try {
-
-                $userOrder = Order::findOrFail($orderId);
-                $user = User::findorFail($userOrder->user_id);
-                $userFcmToken = $user->device_token;
-
-                $attributes['title'] = 'Owleto Order';
-                $attributes['message'] = 'Your Order with OrderID ' . $userOrder->id . ' has been Shipped';
-                $attributes['data'] = $userOrder->toArray();
-
-                Notification::route('fcm', $userFcmToken)
-                    ->notify(new DriverAssignedNotificationToUser($attributes));
-
-            } catch (Exception $e) {
-
-            }
+            return $this->sendResponse($managerOrders, 'order approved successfully');
+        } catch (Exception $exception) {
+            info("ERROR");
+            info($exception);
         }
 
-        return $this->sendResponse($managerOrders, 'order approved successfully');
     }
 
 }
