@@ -93,7 +93,7 @@ class OrderRequestAPIController extends Controller
         try {
             if (count($market->users) > 0) {
                 foreach ($market->users as $user) {
-                    $userFcmToken[] = $user->device_token;
+                    $userFcmToken = $user->device_token;
                     $attributes['title'] = 'Manual Order Request';
                     $attributes['redirection_type'] = Order::MANUAL_ORDER_REDIRECTION_TYPE;
                     $attributes['message'] = 'Manual order has been received from ' . $customer->name;

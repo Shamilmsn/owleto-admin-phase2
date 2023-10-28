@@ -162,7 +162,7 @@ class RazorpayController extends Controller
 
                     if (count($market->users) > 0) {
                         foreach ($market->users as $user) {
-                            $userFcmToken[] = $user->device_token;
+                            $userFcmToken = $user->device_token;
                             $marketAttributes['title'] = 'Owleto new order';
                             $marketAttributes['redirection_type'] = Order::NEW_ORDER_REDIRECTION_TYPE;
                             $marketAttributes['message'] ='You have received a new order from '. $order->user->name .' with OrderID '.$order->id.' for '. $market->name;
@@ -199,7 +199,7 @@ class RazorpayController extends Controller
         
                             if (count($market->users) > 0) {
                                 foreach ($market->users as $user) {
-                                    $userFcmToken[] = $user->device_token;
+                                    $userFcmToken = $user->device_token;
                                     $marketAttributes['title'] = 'Owleto new order';
                                     $marketAttributes['redirection_type'] = Order::NEW_ORDER_REDIRECTION_TYPE;
                                     $marketAttributes['message'] ='You have received a new order from '. $subOrder->user->name .' with OrderID '.$subOrder->id.' for '. $market->name;
@@ -228,7 +228,7 @@ class RazorpayController extends Controller
                 $userOrder = Order::findOrFail($order->id);
 
                 $attribute['title'] = $userOrder->type == Order::ORDER_REQUEST_TYPE ? 'Manual order placed successfully' : 'Order placed successfully';
-                $attribute['redirection_type'] = Order::NEW_ORDER_REDIRECTION_TYPE;
+                $attribute['redirection_type'] = $userOrder->type == Order::ORDER_REQUEST_TYPE ? Order::MANUAL_ORDER_REDIRECTION_TYPE : Order::NEW_ORDER_REDIRECTION_TYPE;
                 $attribute['type'] = $userOrder->type;
                 $attribute['redirection_id'] = $userOrder->id;
                 $attribute['message'] ='Your new order is placed with OrderID '.$order->id.' from ' . $order->market->name;

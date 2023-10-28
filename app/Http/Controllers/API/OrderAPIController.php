@@ -1618,7 +1618,7 @@ class OrderAPIController extends Controller
                         ->first();
                     if (count($market->users) > 0) {
                         foreach ($market->users as $user) {
-                            $userFcmToken[] = $user->device_token;
+                            $userFcmToken = $user->device_token;
                             $attributes['title'] = 'Owleto new order';
                             $attributes['redirection_type'] = Order::NEW_ORDER_REDIRECTION_TYPE;
                             $attributes['message'] = 'You have received a new order from ' . $order->user->name . ' with OrderID ' . $order->id . ' for ' . $market->name;
