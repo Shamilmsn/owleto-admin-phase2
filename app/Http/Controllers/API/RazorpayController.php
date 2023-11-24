@@ -179,6 +179,9 @@ class RazorpayController extends Controller
 
                 if (count($order->allSubOrders) > 0) {
                     foreach ($order->allSubOrders as $subOrder) {
+                        $subOrder->payment_status = 'SUCCESS';
+                        $subOrder->save();
+
                         if ($subOrder->market_id) {
                             $market = Market::with('users')
                                 ->where('id', $subOrder->market_id)
